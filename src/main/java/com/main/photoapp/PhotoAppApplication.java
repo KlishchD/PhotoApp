@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @Configuration
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = "com.main.photoapp.repositories")
 public class PhotoAppApplication {
 
     public static void main(String[] args) {
