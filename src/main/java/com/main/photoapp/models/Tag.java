@@ -14,7 +14,7 @@ public class Tag {
     @Setter
     private int id;
 
-    @Column(name = "tag")
+    @Column(name = "tag", unique = true)
     @Getter
     @Setter
     private String tag;
@@ -23,7 +23,9 @@ public class Tag {
         this.id = id;
         this.tag = tag;
     }
-
+    public Tag(String tag) {
+        this.tag = tag;
+    }
     public Tag() {
 
     }
