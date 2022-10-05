@@ -14,17 +14,17 @@ public class Tag {
     @Setter
     private int id;
 
-    @Column(name = "tag", unique = true)
+    @Column(name = "text", unique = true)
     @Getter
     @Setter
-    private String tag;
+    private String text;
 
-    public Tag(int id, String tag) {
+    public Tag(int id, String text) {
         this.id = id;
-        this.tag = tag;
+        this.text = text;
     }
-    public Tag(String tag) {
-        this.tag = tag;
+    public Tag(String text) {
+        this.text = text;
     }
     public Tag() {
 
