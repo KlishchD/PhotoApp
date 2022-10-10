@@ -44,4 +44,12 @@ public class UsersService {
         users.save(user);
     }
 
+    public boolean userExists(int id) {
+        return users.existsById(id);
+    }
+
+    public boolean userNotExists(int id) {
+        return !users.existsById(id);
+    }
+
 }

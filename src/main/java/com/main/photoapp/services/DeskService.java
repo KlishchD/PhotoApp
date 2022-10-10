@@ -27,9 +27,12 @@ public class DeskService {
     @Autowired
     private DeskPhotoMappingRepository photos;
 
+    @Autowired
+    private UsersService usersService;
+
     @Transactional
-    public int addDesk(String name, String description, int creatorId) {
-        //TODO: Add user existence check
+    public int addDesk(String name, String description, int creatorId) throws UserNotFoundException {
+        if (usersService.userNotExists(creatorId)) throw new UserNotFoundException(creatorId);
         int deskId = desks.save(new Desk(name, description)).getId();
         owners.saveAndFlush(new DeskOwnerMapping(deskId, creatorId, DeskOwnerMapping.Permission.CREATOR_PERMISSION));
         return deskId;
@@ -50,72 +53,75 @@ public class DeskService {
     }
 
     @Transactional
-    public void addOwnerToDesk(int deskId, int userId, DeskOwnerMapping.Permission permission, int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, NoSuchDeskFoundException {
+    public void addOwnerToDesk(int deskId, int userId, DeskOwnerMapping.Permission permission, int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, NoSuchDeskFoundException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
+        if (usersService.userNotExists(adderId)) throw new UserNotFoundException(adderId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
-        //TODO: Add users existence check
         if (isAnOwnerOfDesk(deskId, userId)) throw new UserIsAlreadyDeskOwnerException(deskId, userId);
         addOwnerToDeskValidateUserPermissions(deskId, adderId, permission);
         owners.saveAndFlush(new DeskOwnerMapping(deskId, userId, permission));
     }
 
     @Transactional
-    public void removeDesk(int deskId, int userId) throws NotEnoughPermissionsToDeleteDeskException, NoSuchDeskFoundException {
+    public void removeDesk(int deskId, int userId) throws NotEnoughPermissionsToDeleteDeskException, NoSuchDeskFoundException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
-        //TODO: Add user existence check
         if (!getDeskOwnerPermission(deskId, userId).canDeleteDesk()) throw new NotEnoughPermissionsToDeleteDeskException(userId, deskId);
         desks.deleteById(deskId);
         owners.deleteAllByDeskId(deskId);
     }
 
     @Transactional
-    public Desk getDeskInformation(int deskId, int userId) throws NotEnoughPermissionsException, NoSuchDeskFoundException {
+    public Desk getDeskInformation(int deskId, int userId) throws NotEnoughPermissionsException, NoSuchDeskFoundException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
-        //TODO: Add user existence check
         if (!getDeskOwnerPermission(deskId, userId).canAccessDesk()) throw new NotEnoughPermissionsException(userId);
         return desks.findById(deskId).orElse(null);
     }
 
     @Transactional
-    public List<DeskOwnerMapping> getOwners(int deskId, int userId) throws Exception {
+    public List<DeskOwnerMapping> getOwners(int deskId, int userId) throws NoSuchDeskFoundException, UserNotFoundException, NotEnoughPermissionsException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
-        //TODO: Add user existence check
         if (!getDeskOwnerPermission(deskId, userId).canAccessDesk()) throw new NotEnoughPermissionsException(userId);
         return owners.findByDeskId(deskId);
     }
 
     @Transactional
-    public DeskOwnerMapping.Permission getOwnerPermission(int deskId, int userId, int userIdWhoAsks) throws NotEnoughPermissionsException, NoSuchDeskFoundException {
+    public DeskOwnerMapping.Permission getOwnerPermission(int deskId, int userId, int userIdWhoAsks) throws NotEnoughPermissionsException, NoSuchDeskFoundException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
+        if (usersService.userNotExists(userIdWhoAsks)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
-        //TODO: Add user existence check
         if (!getDeskOwnerPermission(deskId, userIdWhoAsks).canAccessDesk()) throw new NotEnoughPermissionsException(userIdWhoAsks);
         return getDeskOwnerPermission(deskId, userId);
     }
 
-    public void addPhotoToTable(int deskId, int photoId, int userId) throws NoSuchDeskFoundException, NotEnoughPermissionsException {
+    public void addPhotoToTable(int deskId, int photoId, int userId) throws NoSuchDeskFoundException, NotEnoughPermissionsException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
         //TODO: Add photo existence check
-        //TODO: Add user existence check
         if (!getDeskOwnerPermission(deskId, userId).canAddPhoto()) throw new NotEnoughPermissionsException(userId);
         photos.save(new DeskPhotoMapping(deskId, photoId));
     }
 
-    public void removePhotoFromTable(int deskId, int photoId, int userId) throws NoSuchDeskFoundException, NotEnoughPermissionsException, NoSuchPhotoOnDesk {
+    public void removePhotoFromTable(int deskId, int photoId, int userId) throws NoSuchDeskFoundException, NotEnoughPermissionsException, NoSuchPhotoOnDesk, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
         if (photoIsNotPartOfDesk(deskId, photoId)) throw new NoSuchPhotoOnDesk(deskId, photoId);
         //TODO: Add photo existence check
-        //TODO: Add user existence check
         if (!getDeskOwnerPermission(deskId, userId).canRemovePhoto()) throw new NotEnoughPermissionsException(userId);
         photos.deleteByDeskIdAndPhotoId(deskId, photoId);
     }
 
-    public List<Integer> getIdsOfUsersWithSpecificPermissionLevelInDesk(int deskId, int userId, DeskOwnerMapping.Permission permission) throws NoSuchDeskFoundException {
+    public List<Integer> getIdsOfUsersWithSpecificPermissionLevelInDesk(int deskId, int userId, DeskOwnerMapping.Permission permission) throws NoSuchDeskFoundException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
-        //TODO: add user existence check
         if (!canUserAccessDesk(deskId, userId)) return null;
         return getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, permission);
     }
 
-    public Page<Integer> getPhotosFromDesk(int deskId, int userId, int pageSize) throws NoSuchDeskFoundException, NotEnoughPermissionsException {
+    public Page<Integer> getPhotosFromDesk(int deskId, int userId, int pageSize) throws NoSuchDeskFoundException, NotEnoughPermissionsException, UserNotFoundException {
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (deskNotExists(deskId)) throw new NoSuchDeskFoundException(deskId);
         if (!canUserAccessDesk(deskId, userId)) throw new NotEnoughPermissionsException(userId);
         return photos.findAllByDeskId(deskId, Pageable.ofSize(pageSize)).map(DeskPhotoMapping::getPhotoId);
