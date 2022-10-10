@@ -3,7 +3,7 @@ package com.main.photoapp.controllers;
 import com.main.photoapp.exceptions.EmailIsAlreadyConnectedToUserException;
 import com.main.photoapp.exceptions.NicknameIsAlreadyTakenException;
 import com.main.photoapp.models.User;
-import com.main.photoapp.repositories.UsersRepository;
+import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,50 +14,44 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class UsersController {
     @Autowired
-    private UsersRepository users;
+    private UsersService service;
 
 
     @PostMapping("/user/create")
     @ResponseBody
     public int createUser(@RequestParam String nickname, @RequestParam String email, @RequestParam String password) throws NicknameIsAlreadyTakenException, EmailIsAlreadyConnectedToUserException {
-        if (users.existsByNickname(nickname)) throw new NicknameIsAlreadyTakenException(nickname);
-        if (users.existsByEmail(email)) throw new EmailIsAlreadyConnectedToUserException(email);
-        return users.save(new User(nickname, email, password)).getId();
+        return service.createUser(nickname, email, password);
     }
 
     @GetMapping("/user/find/by/nickname")
     @ResponseBody
     public User getUser(@RequestParam String nickname) {
-        return users.findByNickname(nickname).orElse(null);
+        return service.getUserByNickname(nickname);
     }
 
 
     @GetMapping("/user/find/by/id")
     @ResponseBody
     public User getUser(@RequestParam int id) {
-        return users.findById(id).orElse(null);
+        return service.getUserById(id);
     }
 
     @GetMapping("/user/remove")
     @ResponseBody
     public void removeUser(@RequestParam int id) {
-        users.deleteById(id);
+        service.removeUser(id);
     }
 
     @PostMapping("/user/update/email")
     @ResponseBody
     public void updateUserEmail(@RequestParam int id, @RequestParam String email) {
-        User user = users.findById(id).orElseThrow();
-        user.setEmail(email);
-        users.save(user);
+        service.updateUserEmail(id, email);
     }
 
     @PostMapping("/user/update/password")
     @ResponseBody
     public void updateUserPassword(@RequestParam int id, @RequestParam String password) {
-        User user = users.findById(id).orElseThrow();
-        user.setPassword(password);
-        users.save(user);
+        service.updateUserPassword(id, password);
     }
 
 }
