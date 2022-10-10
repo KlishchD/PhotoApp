@@ -15,11 +15,11 @@ public class User {
     @Getter @Setter
     private int id;
 
-    @Column(name = "nickname", nullable = false)
+    @Column(name = "nickname", nullable = false, unique = true)
     @Getter @Setter
     private String nickname;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     @Getter @Setter
     private String email;
 
