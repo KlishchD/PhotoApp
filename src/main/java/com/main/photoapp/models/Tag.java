@@ -12,6 +12,7 @@ public class Tag {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter
+    @Getter
     private int id;
 
     @Column(name = "text", unique = true)
