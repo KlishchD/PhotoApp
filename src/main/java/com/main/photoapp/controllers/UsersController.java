@@ -35,7 +35,7 @@ public class UsersController {
         return service.getUserById(id);
     }
 
-    @GetMapping("/user/remove")
+    @PostMapping("/user/remove")
     @ResponseBody
     public void removeUser(@RequestParam int id) throws UserNotFoundException {
         service.removeUser(id);
