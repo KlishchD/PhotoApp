@@ -3,9 +3,8 @@ package com.main.photoapp.controllers;
 import com.main.photoapp.exceptions.*;
 import com.main.photoapp.models.Desk.Desk;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
-import com.main.photoapp.services.DeskService;
+import com.main.photoapp.services.DesksService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,9 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-public class DeskController {
+public class DesksController {
     @Autowired
-    private DeskService service;
+    private DesksService service;
 
     @PostMapping("/desk/add")
     @ResponseBody

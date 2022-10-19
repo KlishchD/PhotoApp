@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Component
-public class DeskService {
+public class DesksService {
     @Autowired
     private DeskRepository desks;
 
