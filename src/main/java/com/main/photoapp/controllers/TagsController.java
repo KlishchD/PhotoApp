@@ -22,8 +22,9 @@ public class TagsController {
     }
 
     @PostMapping("/tag/add")
-    public void addTag(@RequestParam String text) throws TagAlreadyExistsException {
-        service.addTag(text);
+    @ResponseBody
+    public int addTag(@RequestParam String text) throws TagAlreadyExistsException {
+        return service.addTag(text);
     }
 
     @PostMapping("tag/remove")
@@ -31,7 +32,7 @@ public class TagsController {
         service.removeTag(id);
     }
 
-    @PutMapping("tag/update")
+    @PostMapping("tag/update")
     public void updateTag(@RequestParam int id, @RequestParam String text) throws TagNotFoundException {
         service.updateTag(id, text);
     }
