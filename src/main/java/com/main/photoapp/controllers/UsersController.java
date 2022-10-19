@@ -1,7 +1,6 @@
 package com.main.photoapp.controllers;
 
-import com.main.photoapp.exceptions.EmailIsAlreadyConnectedToUserException;
-import com.main.photoapp.exceptions.NicknameIsAlreadyTakenException;
+import com.main.photoapp.exceptions.*;
 import com.main.photoapp.models.User;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,38 +18,38 @@ public class UsersController {
 
     @PostMapping("/user/create")
     @ResponseBody
-    public int createUser(@RequestParam String nickname, @RequestParam String email, @RequestParam String password) throws NicknameIsAlreadyTakenException, EmailIsAlreadyConnectedToUserException {
+    public int createUser(@RequestParam String nickname, @RequestParam String email, @RequestParam String password) throws NicknameIsAlreadyTakenException, EmailIsAlreadyTakenException, IncorrectEmailFormat, IncorrectNicknameFormat, IncorrectPasswordFormat {
         return service.createUser(nickname, email, password);
     }
 
     @GetMapping("/user/find/by/nickname")
     @ResponseBody
-    public User getUser(@RequestParam String nickname) {
+    public User getUser(@RequestParam String nickname) throws UserNotFoundException, IncorrectNicknameFormat {
         return service.getUserByNickname(nickname);
     }
 
 
     @GetMapping("/user/find/by/id")
     @ResponseBody
-    public User getUser(@RequestParam int id) {
+    public User getUser(@RequestParam int id) throws UserNotFoundException {
         return service.getUserById(id);
     }
 
     @GetMapping("/user/remove")
     @ResponseBody
-    public void removeUser(@RequestParam int id) {
+    public void removeUser(@RequestParam int id) throws UserNotFoundException {
         service.removeUser(id);
     }
 
     @PostMapping("/user/update/email")
     @ResponseBody
-    public void updateUserEmail(@RequestParam int id, @RequestParam String email) {
+    public void updateUserEmail(@RequestParam int id, @RequestParam String email) throws UserNotFoundException, IncorrectEmailFormat {
         service.updateUserEmail(id, email);
     }
 
     @PostMapping("/user/update/password")
     @ResponseBody
-    public void updateUserPassword(@RequestParam int id, @RequestParam String password) {
+    public void updateUserPassword(@RequestParam int id, @RequestParam String password) throws UserNotFoundException, IncorrectPasswordFormat {
         service.updateUserPassword(id, password);
     }
 
