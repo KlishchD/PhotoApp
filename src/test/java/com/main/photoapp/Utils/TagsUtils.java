@@ -3,32 +3,26 @@ package com.main.photoapp.Utils;
 import com.main.photoapp.services.TagsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.Random;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static com.main.photoapp.Utils.RandomTextGenerator.getRandomTagText;
+
 
 @Component
 public class TagsUtils {
     @Autowired
     private TagsService service;
 
-    private String getIdString(MvcResult result) throws UnsupportedEncodingException {
-        return result.getResponse().getContentAsString();
-    }
-
     public String createTag(String text) throws Exception {
-        return String.valueOf(service.addTag(text));
+        int id = service.addTag(text);
+        return String.valueOf(id);
     }
 
-    public String createTag() throws Exception {
-        return String.valueOf(service.addTag(getCurrentTime()));
-    }
-
-    public String getCurrentTime() {
-        return LocalDateTime.now().toString();
+    public String createTag(Random random) throws Exception {
+        String text = getRandomTagText(random);
+        int id = service.addTag(text);
+        return String.valueOf(id);
     }
 }
