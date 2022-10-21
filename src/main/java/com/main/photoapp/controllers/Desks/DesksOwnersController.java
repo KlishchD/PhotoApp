@@ -1,9 +1,8 @@
-package com.main.photoapp.controllers;
+package com.main.photoapp.controllers.Desks;
 
 import com.main.photoapp.exceptions.*;
-import com.main.photoapp.models.Desk.Desk;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
-import com.main.photoapp.services.DesksService;
+import com.main.photoapp.services.Desks.DesksOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,35 +13,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-public class DesksController {
+public class DesksOwnersController {
     @Autowired
-    private DesksService service;
-
-    @PostMapping("/desk/add")
-    @ResponseBody
-    public int addDesk(@RequestParam String name, @RequestParam String description, @RequestParam("creator_id") int creatorId) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {
-        return service.addDesk(name, description, creatorId);
-    }
+    private DesksOwnerService service;
 
     @PostMapping("/desk/add/owner")
     @ResponseBody
     public void addOwnerToDesk(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission, @RequestParam int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, DeskNotFoundException, UserNotFoundException, CanNotAddAnotherCreator {
         service.addOwnerToDesk(deskId, userId, permission, adderId);
     }
+
 //TODO: Think about api url format
-
-    @PostMapping("/desk/remove")
-    @ResponseBody
-    public void removeDesk(@RequestParam int deskId, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
-        service.removeDesk(deskId, userId);
-    }
-
-
-    @GetMapping("/desk/get/info")
-    @ResponseBody
-    public Desk getDeskInformation(@RequestParam int deskId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
-        return service.getDeskInformation(deskId, userId);
-    }
 
     @GetMapping("/desk/get/owners")
     @ResponseBody
@@ -61,22 +42,8 @@ public class DesksController {
     public Integer getCreator(@RequestParam int deskId, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException {
         return service.getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, userId, DeskOwnerMapping.Permission.CREATOR_PERMISSION).get(0);
     }
-
     @GetMapping("/desk/get/owners_with_permission")
     public List<Integer> getOwnersWithPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission) throws DeskNotFoundException, UserNotFoundException {
         return service.getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, userId, permission);
     }
-
-    @PostMapping("/desk/add/photo")
-    @ResponseBody
-    public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
-        service.addPhotoToTable(deskId, photoId, userId);
-    }
-
-    @PostMapping("/desk/remove/photo")
-    @ResponseBody
-    public void removePhotoFromTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, NoSuchPhotoOnDesk, UserNotFoundException {
-        service.removePhotoFromTable(deskId, photoId, userId);
-    }
-
 }
