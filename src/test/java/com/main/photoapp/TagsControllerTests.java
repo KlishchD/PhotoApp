@@ -1,6 +1,7 @@
 package com.main.photoapp;
 
 import com.main.photoapp.Utils.TagsUtils;
+import com.main.photoapp.models.Tag;
 import com.main.photoapp.repositories.TagsRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,11 +72,15 @@ public class TagsControllerTests {
 
     @Test
     public void addTag_correctInput_addsTag() throws Exception {
-        MvcResult result = mockMvc.perform(post("/tag/add").param("text", getRandomTagText(random)))
+        String text = getRandomTagText(random);
+        MvcResult result = mockMvc.perform(post("/tag/add").param("text", text))
                 .andExpect(status().isOk())
                 .andReturn();
-        String id = result.getResponse().getContentAsString();
-        assertTrue(repository.existsById(Integer.valueOf(id)));
+        int id = Integer.parseInt(result.getResponse().getContentAsString());
+        assertTrue(repository.existsById(id));
+
+        Tag tag = repository.findById(id).get();
+        assertEquals(text, tag.getText());
     }
 
     @Test
