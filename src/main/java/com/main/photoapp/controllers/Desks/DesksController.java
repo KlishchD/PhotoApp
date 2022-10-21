@@ -32,4 +32,16 @@ public class DesksController {
     public Desk getDeskInformation(@RequestParam int deskId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
         return service.getDeskInformation(deskId, userId);
     }
+
+    @PostMapping("/desk/update/name")
+    @ResponseBody
+    public void updateDeskName(@RequestParam int deskId, @RequestParam String name, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskNameFormat {
+        service.updateDesksName(deskId, name, userId);
+    }
+
+    @PostMapping("/desk/update/description")
+    @ResponseBody
+    public void updateDeskDescription(@RequestParam int deskId, @RequestParam String description, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskDescriptionFormat {
+        service.updateDesksDescription(deskId, description, userId);
+    }
 }

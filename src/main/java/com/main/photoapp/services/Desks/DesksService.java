@@ -37,6 +37,7 @@ public class DesksService {
         if (!isDeskDescriptionCorrect(description)) throw new IncorrectDeskDescriptionFormat(description);
         if (usersService.userNotExists(creatorId)) throw new UserNotFoundException(creatorId);
         int deskId = desks.save(new Desk(name, description)).getId();
+        desksOwnerService.addCreatorForDesk(deskId, creatorId);
         return deskId;
     }
 
@@ -55,6 +56,23 @@ public class DesksService {
         if (deskNotExists(deskId)) throw new DeskNotFoundException(deskId);
         if (!desksOwnerService.getDeskOwnerPermission(deskId, userId).canAccessDesk()) throw new NotEnoughPermissionsException(userId);
         return desks.findById(deskId).orElse(null);
+    }
+
+    public void updateDesksName(int deskId, String name, int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskNameFormat {
+        if (deskNotExists(deskId)) throw new DeskNotFoundException(deskId);
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
+        if (!isDeskNameCorrect(name)) throw new IncorrectDeskNameFormat(name);
+        Desk desk = desks.findById(deskId).get();
+        desk.setName(name);
+        desks.save(desk);
+    }
+    public void updateDesksDescription(int deskId, String description, int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskDescriptionFormat {
+        if (deskNotExists(deskId)) throw new DeskNotFoundException(deskId);
+        if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
+        if (!isDeskDescriptionCorrect(description)) throw new IncorrectDeskDescriptionFormat(description);
+        Desk desk = desks.findById(deskId).get();
+        desk.setDescription(description);
+        desks.save(desk);
     }
 
     protected boolean deskNotExists(int deskId) {
