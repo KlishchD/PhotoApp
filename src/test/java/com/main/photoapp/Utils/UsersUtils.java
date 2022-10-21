@@ -14,6 +14,9 @@ public class UsersUtils {
     @Autowired
     private UsersService service;
 
+    @Autowired
+    private UsersRepository repository;
+
 
     public String createUser(String nickname, String email, String password) throws Exception {
         return String.valueOf(service.createUser(nickname, email, password));
@@ -23,4 +26,7 @@ public class UsersUtils {
         return String.valueOf(service.createUser(getRandomNickname(random), getRandomEmail(random), getRandomPassword(random)));
     }
 
+    public void clearRepository() {
+        repository.deleteAll();
+    }
 }
