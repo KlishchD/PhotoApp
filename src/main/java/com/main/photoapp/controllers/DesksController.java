@@ -26,21 +26,21 @@ public class DesksController {
 
     @PostMapping("/desk/add/owner")
     @ResponseBody
-    public void addOwnerToDesk(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission, @RequestParam int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, NoSuchDeskFoundException, UserNotFoundException {
+    public void addOwnerToDesk(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission, @RequestParam int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, DeskNotFoundException, UserNotFoundException, CanNotAddAnotherCreator {
         service.addOwnerToDesk(deskId, userId, permission, adderId);
     }
-
+//TODO: Think about api url format
 
     @PostMapping("/desk/remove")
     @ResponseBody
-    public void removeDesk(@RequestParam int deskId, @RequestParam int userId) throws NotEnoughPermissionsToDeleteDeskException, NoSuchDeskFoundException, UserNotFoundException {
+    public void removeDesk(@RequestParam int deskId, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
         service.removeDesk(deskId, userId);
     }
 
 
     @GetMapping("/desk/get/info")
     @ResponseBody
-    public Desk getDeskInformation(@RequestParam int deskId, @RequestParam int userId) throws NotEnoughPermissionsException, NoSuchDeskFoundException, UserNotFoundException {
+    public Desk getDeskInformation(@RequestParam int deskId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
         return service.getDeskInformation(deskId, userId);
     }
 
@@ -52,30 +52,30 @@ public class DesksController {
 
     @GetMapping("/desk/get/owner_permission")
     @ResponseBody
-    public DeskOwnerMapping.Permission getOwnerPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam int userIdWhoAsks) throws NotEnoughPermissionsException, NoSuchDeskFoundException, UserNotFoundException {
+    public DeskOwnerMapping.Permission getOwnerPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam int userIdWhoAsks) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
         return service.getOwnerPermission(deskId, userId, userIdWhoAsks);
     }
 
     @GetMapping("/desk/get/creator")
     @ResponseBody
-    public Integer getCreator(@RequestParam int deskId, @RequestParam int userId) throws NoSuchDeskFoundException, UserNotFoundException {
+    public Integer getCreator(@RequestParam int deskId, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException {
         return service.getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, userId, DeskOwnerMapping.Permission.CREATOR_PERMISSION).get(0);
     }
 
     @GetMapping("/desk/get/owners_with_permission")
-    public List<Integer> getOwnersWithPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission) throws NoSuchDeskFoundException, UserNotFoundException {
+    public List<Integer> getOwnersWithPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission) throws DeskNotFoundException, UserNotFoundException {
         return service.getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, userId, permission);
     }
 
     @PostMapping("/desk/add/photo")
     @ResponseBody
-    public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, NoSuchDeskFoundException, UserNotFoundException {
+    public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
         service.addPhotoToTable(deskId, photoId, userId);
     }
 
     @PostMapping("/desk/remove/photo")
     @ResponseBody
-    public void removePhotoFromTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, NoSuchDeskFoundException, NoSuchPhotoOnDesk, UserNotFoundException {
+    public void removePhotoFromTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, NoSuchPhotoOnDesk, UserNotFoundException {
         service.removePhotoFromTable(deskId, photoId, userId);
     }
 
