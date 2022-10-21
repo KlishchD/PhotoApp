@@ -16,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.main.photoapp.utils.DeskDescriptionChecker.isDeskDescriptionCorrect;
+import static com.main.photoapp.utils.DeskNameChecker.isDeskNameCorrect;
+
 @Component
 public class DesksService {
     @Autowired
@@ -31,7 +34,9 @@ public class DesksService {
     private UsersService usersService;
 
     @Transactional
-    public int addDesk(String name, String description, int creatorId) throws UserNotFoundException {
+    public int addDesk(String name, String description, int creatorId) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {
+        if (!isDeskNameCorrect(name)) throw new IncorrectDeskNameFormat(name);
+        if (!isDeskDescriptionCorrect(description)) throw new IncorrectDeskDescriptionFormat(description);
         if (usersService.userNotExists(creatorId)) throw new UserNotFoundException(creatorId);
         int deskId = desks.save(new Desk(name, description)).getId();
         owners.saveAndFlush(new DeskOwnerMapping(deskId, creatorId, DeskOwnerMapping.Permission.CREATOR_PERMISSION));

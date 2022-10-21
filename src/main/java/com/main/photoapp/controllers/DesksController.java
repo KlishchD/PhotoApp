@@ -20,7 +20,7 @@ public class DesksController {
 
     @PostMapping("/desk/add")
     @ResponseBody
-    public int addDesk(@RequestParam String name, @RequestParam String description, @RequestParam("creator_id") int creatorId) throws UserNotFoundException {
+    public int addDesk(@RequestParam String name, @RequestParam String description, @RequestParam("creator_id") int creatorId) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {
         return service.addDesk(name, description, creatorId);
     }
 
