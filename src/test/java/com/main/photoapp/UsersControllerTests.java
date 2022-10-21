@@ -2,6 +2,7 @@ package com.main.photoapp;
 
 
 import com.main.photoapp.Utils.UsersUtils;
+import com.main.photoapp.models.User;
 import com.main.photoapp.repositories.UsersRepository;
 import com.main.photoapp.utils.NicknameChecker;
 import com.main.photoapp.utils.PasswordChecker;
@@ -17,8 +18,10 @@ import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import static com.main.photoapp.Utils.RandomTextGenerator.*;
 import static com.main.photoapp.Utils.UsersUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,10 +54,10 @@ public class UsersControllerTests {
 
     @Test
     public void updateUserPassword_correctInput_updatesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-        String newPassword = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String password = getRandomPassword(random);
+        String newPassword = getRandomPassword(random);
 
         String id = usersUtils.createUser(nickname, email, password);
 
@@ -64,12 +67,8 @@ public class UsersControllerTests {
 
     @Test
     public void updateUserPassword_nonExistingUser_updatesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-        String newPassword = usersUtils.getRandomPassword(random);
-
-        usersUtils.createUser(nickname, email, password);
+        String newPassword = getRandomPassword(random);
+        usersUtils.createUser(random);
 
         mockMvc.perform(post("/user/update/password").param("id", NON_EXISTING_ID).param("password", newPassword))
                 .andExpect(status().is5xxServerError())
@@ -78,11 +77,7 @@ public class UsersControllerTests {
 
     @Test
     public void updateUserPassword_incorrectPasswordFormat_updatesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-
-        String id = usersUtils.createUser(nickname, email, password);
+        String id = usersUtils.createUser(random);
 
         mockMvc.perform(post("/user/update/password").param("id", id).param("password", PASSWORD_INCORRECT_FORMAT))
                 .andExpect(status().is5xxServerError())
@@ -91,10 +86,10 @@ public class UsersControllerTests {
 
     @Test
     public void updateUserEmail_correctInput_updatesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String newEmail = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String newEmail = getRandomEmail(random);
+        String password = getRandomPassword(random);
 
         String id = usersUtils.createUser(nickname, email, password);
 
@@ -104,12 +99,8 @@ public class UsersControllerTests {
 
     @Test
     public void updateUserEmail_nonExistingUser_updatesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String newEmail = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-
-        usersUtils.createUser(nickname, email, password);
+        String newEmail = getRandomEmail(random);
+        usersUtils.createUser(random);
 
         mockMvc.perform(post("/user/update/email").param("id", NON_EXISTING_ID).param("email", newEmail))
                 .andExpect(status().is5xxServerError())
@@ -118,11 +109,7 @@ public class UsersControllerTests {
 
     @Test
     public void updateUserEmail_incorrectEmailFormat_updatesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-
-        usersUtils.createUser(nickname, email, password);
+        usersUtils.createUser(random);
 
         mockMvc.perform(post("/user/update/email").param("id", NON_EXISTING_ID).param("email", EMAIL_INCORRECT_FORMAT))
                 .andExpect(status().is5xxServerError())
@@ -132,11 +119,7 @@ public class UsersControllerTests {
 
     @Test
     public void removeUser_correctInput_removesUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-
-        String id = usersUtils.createUser(nickname, email, password);
+        String id = usersUtils.createUser(random);
 
         mockMvc.perform(post("/user/remove").param("id", id)).andExpect(status().isOk());
     }
@@ -148,9 +131,9 @@ public class UsersControllerTests {
 
     @Test
     public void getUserById_correctInput_returnsUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String password = getRandomPassword(random);
 
         String id = usersUtils.createUser(nickname, email, password);
 
@@ -167,9 +150,9 @@ public class UsersControllerTests {
 
     @Test
     public void getUserByNickname_correctInput_returnsUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String password = getRandomPassword(random);
 
         String id = usersUtils.createUser(nickname, email, password);
 
@@ -194,9 +177,9 @@ public class UsersControllerTests {
 
     @Test
     public void createUser_correctInput_createsUser() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String password = getRandomPassword(random);
 
         MvcResult result = mockMvc.perform(post("/user/create")
                         .param("nickname", nickname)
@@ -205,22 +188,24 @@ public class UsersControllerTests {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        repository.existsById(Integer.valueOf(result.getResponse().getContentAsString()));
-        repository.findByNickname(nickname);
-        repository.existsByEmail(email);
+        int id = Integer.parseInt(result.getResponse().getContentAsString());
+        User user = repository.findById(id).get();
+        assertTrue(repository.existsById(id));
+        assertEquals(password, user.getPassword());
+        assertEquals(nickname, user.getNickname());
+        assertEquals(email, user.getEmail());
     }
 
     @Test
     public void createUser_emailIsTaken_throwException() throws Exception {
-        String nickname1 = usersUtils.getRandomNickname(random);
-        String nickname2 = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String password = getRandomPassword(random);
 
-        usersUtils.createUser(nickname1, email, password);
+        usersUtils.createUser(nickname, email, password);
 
         mockMvc.perform(post("/user/create")
-                        .param("nickname", nickname2)
+                        .param("nickname", getRandomNickname(random))
                         .param("email", email)
                         .param("password", password))
                 .andExpect(status().is5xxServerError())
@@ -229,16 +214,15 @@ public class UsersControllerTests {
 
     @Test
     public void createUser_nicknameIsTaken_throwException() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email1 = usersUtils.getRandomEmail(random);
-        String email2 = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
+        String nickname = getRandomNickname(random);
+        String email = getRandomEmail(random);
+        String password = getRandomPassword(random);
 
-        usersUtils.createUser(nickname, email1, password);
+        usersUtils.createUser(nickname, email, password);
 
         mockMvc.perform(post("/user/create")
                         .param("nickname", nickname)
-                        .param("email", email2)
+                        .param("email", getRandomEmail(random))
                         .param("password", password))
                 .andExpect(status().is5xxServerError())
                 .andExpect(status().reason("Nickname is already taken"));
@@ -246,25 +230,19 @@ public class UsersControllerTests {
 
     @Test
     public void createUser_incorrectEmailFormat_throwException() throws Exception {
-        String time = usersUtils.getRandomNickname(random);
-        String password = usersUtils.getRandomPassword(random);
-
         mockMvc.perform(post("/user/create")
-                        .param("nickname", time)
+                        .param("nickname", getRandomNickname(random))
                         .param("email", EMAIL_INCORRECT_FORMAT)
-                        .param("password", password))
+                        .param("password", getRandomPassword(random)))
                 .andExpect(status().is5xxServerError())
                 .andExpect(status().reason("Email is in incorrect format"));
     }
 
     @Test
     public void createUser_incorrectPasswordFormat_throwException() throws Exception {
-        String nickname = usersUtils.getRandomNickname(random);
-        String email = usersUtils.getRandomEmail(random);
-
         mockMvc.perform(post("/user/create")
-                        .param("nickname", nickname)
-                        .param("email", email)
+                        .param("nickname", getRandomNickname(random))
+                        .param("email", getRandomEmail(random))
                         .param("password", PASSWORD_INCORRECT_FORMAT))
                 .andExpect(status().is5xxServerError())
                 .andExpect(status().reason("Password is in incorrect format"));
@@ -272,13 +250,10 @@ public class UsersControllerTests {
 
     @Test
     public void createUser_incorrectNicknameFormat_throwException() throws Exception {
-        String email = usersUtils.getRandomEmail(random);
-        String password = usersUtils.getRandomPassword(random);
-
         mockMvc.perform(post("/user/create")
                         .param("nickname", NICKNAME_INCORRECT_FORMAT)
-                        .param("email", email)
-                        .param("password", password))
+                        .param("email", getRandomEmail(random))
+                        .param("password", getRandomPassword(random)))
                 .andExpect(status().is5xxServerError())
                 .andExpect(status().reason("Nickname is in incorrect format"));
     }
