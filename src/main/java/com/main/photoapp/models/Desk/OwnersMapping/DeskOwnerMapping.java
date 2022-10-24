@@ -20,11 +20,12 @@ public class DeskOwnerMapping {
     @Getter @Setter
     private int userId;
 
-    @Column(name="permission_level", nullable = false)
+    @Column(name = "permission_level", nullable = false)
     @Getter @Setter
     private Permission permission;
 
-    public DeskOwnerMapping() {}
+    public DeskOwnerMapping() {
+    }
 
     public DeskOwnerMapping(int deskId, int userId, Permission permission) {
         this.deskId = deskId;
@@ -38,10 +39,20 @@ public class DeskOwnerMapping {
             public int getLevel() {
                 return 0;
             }
+
+            @Override
+            public boolean canAccessPublicDesk() {
+                return true;
+            }
         },
         VIEW_ONLY_PERMISSION {
             @Override
-            public boolean canAccessDesk() {
+            public boolean canAccessPublicDesk() {
+                return true;
+            }
+
+            @Override
+            public boolean canAccessPrivateDesk() {
                 return true;
             }
 
@@ -50,9 +61,14 @@ public class DeskOwnerMapping {
                 return 1;
             }
         },
-        VIEW_AND_MANAGE_PHOTOS_PERMISSION {
+        PHOTO_MANAGEMENT_PERMISSION {
             @Override
-            public boolean canAccessDesk() {
+            public boolean canAccessPublicDesk() {
+                return true;
+            }
+
+            @Override
+            public boolean canAccessPrivateDesk() {
                 return true;
             }
 
@@ -71,7 +87,12 @@ public class DeskOwnerMapping {
         },
         FULL_PERMISSION {
             @Override
-            public boolean canAccessDesk() {
+            public boolean canAccessPublicDesk() {
+                return true;
+            }
+
+            @Override
+            public boolean canAccessPrivateDesk() {
                 return true;
             }
 
@@ -98,10 +119,20 @@ public class DeskOwnerMapping {
             public boolean canRemovePhoto() {
                 return true;
             }
+
+            public boolean canModifyDeskInformation() {
+                return true;
+            }
+
         },
-        CREATOR_PERMISSION{
+        CREATOR_PERMISSION {
             @Override
-            public boolean canAccessDesk() {
+            public boolean canAccessPublicDesk() {
+                return true;
+            }
+
+            @Override
+            public boolean canAccessPrivateDesk() {
                 return true;
             }
 
@@ -133,9 +164,18 @@ public class DeskOwnerMapping {
             public boolean canRemovePhoto() {
                 return true;
             }
+
+            public boolean canModifyDeskInformation() {
+                return true;
+            }
+
         };
 
-        public boolean canAccessDesk() {
+        public boolean canAccessPublicDesk() {
+            return false;
+        }
+
+        public boolean canAccessPrivateDesk() {
             return false;
         }
 
@@ -158,6 +198,10 @@ public class DeskOwnerMapping {
         }
 
         public boolean canRemovePhoto() {
+            return false;
+        }
+
+        public boolean canModifyDeskInformation() {
             return false;
         }
     }
