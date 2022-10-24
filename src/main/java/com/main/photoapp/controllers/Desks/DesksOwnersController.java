@@ -39,11 +39,13 @@ public class DesksOwnersController {
 
     @GetMapping("/desk/get/creator")
     @ResponseBody
-    public Integer getCreator(@RequestParam int deskId, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException {
-        return service.getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, userId, DeskOwnerMapping.Permission.CREATOR_PERMISSION).get(0);
+    public Integer getCreator(@RequestParam int deskId, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
+        return service.getCreator(deskId, userId);
     }
+
     @GetMapping("/desk/get/owners_with_permission")
-    public List<Integer> getOwnersWithPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission) throws DeskNotFoundException, UserNotFoundException {
-        return service.getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, userId, permission);
+    @ResponseBody
+    public List<Integer> getOwnersWithPermission(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
+        return service.getIdsOfUsersWithSpecificPermissionInDesk(deskId, userId, permission);
     }
 }
