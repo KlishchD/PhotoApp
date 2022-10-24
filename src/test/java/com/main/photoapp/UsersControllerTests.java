@@ -20,6 +20,7 @@ import java.util.Random;
 
 import static com.main.photoapp.Utils.RandomTextGenerator.*;
 import static com.main.photoapp.Utils.UsersUtils.*;
+import static com.main.photoapp.utils.PasswordChecker.PASSWORD_MAXIMAL_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,7 +45,7 @@ public class UsersControllerTests {
     private final String EMAIL_INCORRECT_FORMAT = "-12";
     private final String NON_EXISTING_NICKNAME = "100000000";
     private final String NICKNAME_INCORRECT_FORMAT = "-100";
-    private final String PASSWORD_INCORRECT_FORMAT = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    private final String PASSWORD_INCORRECT_FORMAT = "a".repeat(PASSWORD_MAXIMAL_SIZE + 1);
 
     @BeforeEach
     public void setUp() {
