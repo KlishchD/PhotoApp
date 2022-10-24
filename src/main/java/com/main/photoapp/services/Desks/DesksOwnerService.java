@@ -43,7 +43,7 @@ public class DesksOwnerService {
     public List<DeskOwnerMapping> getOwners(int deskId, int userId) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
         if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (desksService.deskNotExists(deskId)) throw new DeskNotFoundException(deskId);
-        if (!getDeskOwnerPermission(deskId, userId).canAccessDesk()) throw new NotEnoughPermissionsException(userId);
+        if (!canUserAccessDesk(deskId, userId)) throw new NotEnoughPermissionsException(userId);
         return owners.findByDeskId(deskId);
     }
 
@@ -52,8 +52,7 @@ public class DesksOwnerService {
         if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (usersService.userNotExists(userIdWhoAsks)) throw new UserNotFoundException(userId);
         if (desksService.deskNotExists(deskId)) throw new DeskNotFoundException(deskId);
-        if (!getDeskOwnerPermission(deskId, userIdWhoAsks).canAccessDesk())
-            throw new NotEnoughPermissionsException(userIdWhoAsks);
+        if (!canUserAccessDesk(deskId, userIdWhoAsks)) throw new NotEnoughPermissionsException(userIdWhoAsks);
         return getDeskOwnerPermission(deskId, userId);
     }
 
@@ -76,16 +75,16 @@ public class DesksOwnerService {
         return owners.findByDeskIdAndUserId(deskId, userId).map(DeskOwnerMapping::getPermission).orElse(DeskOwnerMapping.Permission.NO_PERMISSIONS);
     }
 
-    protected boolean canUserAccessDesk(int deskId, int userId) {
-        DeskOwnerMapping.Permission permission = owners.findByDeskIdAndUserId(deskId, userId).map(DeskOwnerMapping::getPermission).orElse(DeskOwnerMapping.Permission.NO_PERMISSIONS);
-        return permission != DeskOwnerMapping.Permission.NO_PERMISSIONS;
-    }
-
     protected boolean isAnOwnerOfDesk(int deskId, int userId) {
         return owners.existsByDeskIdAndUserId(deskId, userId);
     }
 
     protected List<Integer> getIdsOfUsersWithSpecificPermissionLevelInDesk(int deskId, DeskOwnerMapping.Permission permission) {
         return owners.findByDeskIdAndPermission(deskId, permission).stream().map(DeskOwnerMapping::getUserId).toList();
+    }
+
+    protected boolean canUserAccessDesk(int deskId, int userId) {
+        return (desksService.isDeskPublic(deskId) && getDeskOwnerPermission(deskId, userId).canAccessPublicDesk()) ||
+                (desksService.isDeskPrivate(deskId) && getDeskOwnerPermission(deskId, userId).canAccessPrivateDesk());
     }
 }
