@@ -25,6 +25,9 @@ public class Desk {
     @Getter @Setter
     private String description;
 
+    @Column(name = "type", nullable = false)
+    @Getter @Setter
+    private DeskType type;
 
     public Desk() {
     }
@@ -32,5 +35,17 @@ public class Desk {
     public Desk(String name, String description) {
         this.name = name;
         this.description = description;
+        this.type = DeskType.PUBLIC;
+    }
+
+    public Desk(String name, String description, DeskType type) {
+        this.name = name;
+        this.description = description;
+        this.type = type;
+    }
+
+    public enum DeskType {
+        PUBLIC,
+        PRIVATE
     }
 }
