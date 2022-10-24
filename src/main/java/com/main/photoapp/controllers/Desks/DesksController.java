@@ -17,8 +17,8 @@ public class DesksController {
 
     @PostMapping("/desk/add")
     @ResponseBody
-    public int addDesk(@RequestParam String name, @RequestParam String description, @RequestParam("creator_id") int creatorId) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {
-        return service.addDesk(name, description, creatorId);
+    public int addDesk(@RequestParam String name, @RequestParam String description, @RequestParam("creator_id") int creatorId, @RequestParam Desk.DeskType type) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {
+        return service.addDesk(name, description, creatorId, type);
     }
 
     @PostMapping("/desk/remove")
@@ -35,13 +35,13 @@ public class DesksController {
 
     @PostMapping("/desk/update/name")
     @ResponseBody
-    public void updateDeskName(@RequestParam int deskId, @RequestParam String name, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskNameFormat {
+    public void updateDeskName(@RequestParam int deskId, @RequestParam String name, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskNameFormat, NotEnoughPermissionsException {
         service.updateDesksName(deskId, name, userId);
     }
 
     @PostMapping("/desk/update/description")
     @ResponseBody
-    public void updateDeskDescription(@RequestParam int deskId, @RequestParam String description, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskDescriptionFormat {
+    public void updateDeskDescription(@RequestParam int deskId, @RequestParam String description, @RequestParam int userId) throws DeskNotFoundException, UserNotFoundException, IncorrectDeskDescriptionFormat, NotEnoughPermissionsException {
         service.updateDesksDescription(deskId, description, userId);
     }
 }
