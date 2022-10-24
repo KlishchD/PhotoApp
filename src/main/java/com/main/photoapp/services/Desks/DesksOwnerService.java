@@ -5,6 +5,7 @@ import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
 import com.main.photoapp.repositories.DeskOwnerRepository;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +21,6 @@ public class DesksOwnerService {
 
     @Autowired
     private DesksService desksService;
-
-    private void addOwnerToDeskValidateUserPermissions(int deskId, int adderId, DeskOwnerMapping.Permission permission) throws NotEnoughPermissionsException, CanNotAddAnotherCreator {
-        DeskOwnerMapping.Permission adderPermission = getDeskOwnerPermission(deskId, adderId);
-        if (!adderPermission.canAddOwner()) throw new NotEnoughPermissionsException(adderId);
-        if (adderPermission == DeskOwnerMapping.Permission.CREATOR_PERMISSION && permission == DeskOwnerMapping.Permission.CREATOR_PERMISSION)
-            throw new CanNotAddAnotherCreator();
-        if (permission.getLevel() >= adderPermission.getLevel()) throw new NotEnoughPermissionsException(adderId);
-    }
 
     @Transactional
     public void addOwnerToDesk(int deskId, int userId, DeskOwnerMapping.Permission permission, int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, DeskNotFoundException, UserNotFoundException, CanNotAddAnotherCreator {
@@ -56,11 +49,15 @@ public class DesksOwnerService {
         return getDeskOwnerPermission(deskId, userId);
     }
 
-    public List<Integer> getIdsOfUsersWithSpecificPermissionLevelInDesk(int deskId, int userId, DeskOwnerMapping.Permission permission) throws DeskNotFoundException, UserNotFoundException {
+    public Integer getCreator(int deskId, int userId) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
+        return getIdsOfUsersWithSpecificPermissionInDesk(deskId, userId, DeskOwnerMapping.Permission.CREATOR_PERMISSION).get(0);
+    }
+
+    public List<Integer> getIdsOfUsersWithSpecificPermissionInDesk(int deskId, int userId, DeskOwnerMapping.Permission permission) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {
         if (usersService.userNotExists(userId)) throw new UserNotFoundException(userId);
         if (desksService.deskNotExists(deskId)) throw new DeskNotFoundException(deskId);
-        if (!canUserAccessDesk(deskId, userId)) return null;
-        return getIdsOfUsersWithSpecificPermissionLevelInDesk(deskId, permission);
+        if (!canUserAccessDesk(deskId, userId)) throw new NotEnoughPermissionsException(userId);
+        return getIdsOfUsersWithSpecificPermissionInDesk(deskId, permission);
     }
 
     protected void addCreatorForDesk(int deskId, int creatorId) {
@@ -79,12 +76,19 @@ public class DesksOwnerService {
         return owners.existsByDeskIdAndUserId(deskId, userId);
     }
 
-    protected List<Integer> getIdsOfUsersWithSpecificPermissionLevelInDesk(int deskId, DeskOwnerMapping.Permission permission) {
+    protected List<Integer> getIdsOfUsersWithSpecificPermissionInDesk(int deskId, DeskOwnerMapping.Permission permission) {
         return owners.findByDeskIdAndPermission(deskId, permission).stream().map(DeskOwnerMapping::getUserId).toList();
     }
 
     protected boolean canUserAccessDesk(int deskId, int userId) {
         return (desksService.isDeskPublic(deskId) && getDeskOwnerPermission(deskId, userId).canAccessPublicDesk()) ||
                 (desksService.isDeskPrivate(deskId) && getDeskOwnerPermission(deskId, userId).canAccessPrivateDesk());
+    }
+
+    private void addOwnerToDeskValidateUserPermissions(int deskId, int adderId, DeskOwnerMapping.Permission permission) throws NotEnoughPermissionsException, CanNotAddAnotherCreator {
+        DeskOwnerMapping.Permission adderPermission = getDeskOwnerPermission(deskId, adderId);
+        if (!adderPermission.canAddOwner()) throw new NotEnoughPermissionsException(adderId);
+        if (adderPermission == DeskOwnerMapping.Permission.CREATOR_PERMISSION && permission == DeskOwnerMapping.Permission.CREATOR_PERMISSION) throw new CanNotAddAnotherCreator();
+        if (permission.getLevel() >= adderPermission.getLevel()) throw new NotEnoughPermissionsException(adderId);
     }
 }
