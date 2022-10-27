@@ -3,6 +3,7 @@ package com.main.photoapp.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 
@@ -15,17 +16,21 @@ public class User {
     @Getter @Setter
     private int id;
 
-    @Column(name = "nickname", nullable = false, unique = true)
+    @Column(name = "username")
     @Getter @Setter
     private String nickname;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email")
     @Getter @Setter
     private String email;
 
     @Column(name = "password", nullable = false)
     @Getter @Setter
     private String password;
+
+    @Column(name = "enabled", nullable = false)
+    @Getter @Setter
+    boolean enabled = true;
 
     public User(){
 
@@ -35,5 +40,12 @@ public class User {
         this.nickname = nickname;
         this.email = email;
         this.password = password;
+    }
+
+    public UserDetails getSecurityUserDetails() {
+        return org.springframework.security.core.userdetails.User
+                .withUsername(nickname)
+                .password(password)
+                .roles("USER").build();
     }
 }
