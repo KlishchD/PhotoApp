@@ -4,6 +4,8 @@ import com.main.photoapp.exceptions.*;
 import com.main.photoapp.models.User;
 import com.main.photoapp.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Component;
 
 import static com.main.photoapp.utils.EmailChecker.isEmailCorrect;
@@ -15,13 +17,22 @@ public class UsersService {
     @Autowired
     private UsersRepository users;
 
+    @Autowired
+    private UserDetailsManager manager;
+
+    @Autowired
+    private PasswordEncoder encoder;
+
     public int createUser(String nickname, String email, String password) throws NicknameIsAlreadyTakenException, EmailIsAlreadyTakenException, IncorrectEmailFormat, IncorrectPasswordFormat, IncorrectNicknameFormat {
         if (!isNicknameCorrect(nickname)) throw new IncorrectNicknameFormat(nickname);
         if (!isEmailCorrect(email)) throw new IncorrectEmailFormat(email);
         if (!isPasswordCorrect(password)) throw new IncorrectPasswordFormat(password);
         if (users.existsByNickname(nickname)) throw new NicknameIsAlreadyTakenException(nickname);
         if (users.existsByEmail(email)) throw new EmailIsAlreadyTakenException(email);
-        return users.save(new User(nickname, email, password)).getId();
+        User user = new User(nickname, email, encoder.encode(password));
+        manager.createUser(user.getSecurityUserDetails());
+        user.setId(users.findByNickname(nickname).get().getId());
+        return users.save(user).getId();
     }
 
     public User getUserByNickname(String nickname) throws UserNotFoundException, IncorrectNicknameFormat {
@@ -52,7 +63,7 @@ public class UsersService {
         if (!users.existsById(id)) throw new UserNotFoundException(id);
         if (!isPasswordCorrect(password)) throw new IncorrectPasswordFormat(password);
         User user = users.findById(id).orElseThrow();
-        user.setPassword(password);
+        user.setPassword(encoder.encode(password));
         users.save(user);
     }
 
