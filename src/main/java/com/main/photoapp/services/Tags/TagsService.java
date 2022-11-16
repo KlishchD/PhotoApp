@@ -1,4 +1,4 @@
-package com.main.photoapp.services;
+package com.main.photoapp.services.Tags;
 
 import com.main.photoapp.exceptions.TagAlreadyExistsException;
 import com.main.photoapp.exceptions.TagNotFoundException;
@@ -7,6 +7,7 @@ import com.main.photoapp.repositories.TagsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -14,10 +15,8 @@ public class TagsService {
     @Autowired
     private TagsRepository repository;
 
-    public Tag getTagByID(int id) throws TagNotFoundException {
-        Optional<Tag> tag = repository.findById(id);
-        if (tag.isEmpty()) throw new TagNotFoundException(id);
-        return tag.get();
+    public Tag getTagById(int id) {
+        return  repository.findById(id).orElse(null);
     }
 
     public int addTag(String text) throws TagAlreadyExistsException {
@@ -34,5 +33,17 @@ public class TagsService {
     public void updateTag(int id, String text) throws TagNotFoundException {
         if (!repository.existsById(id)) throw new TagNotFoundException(id);
         repository.save(new Tag(id, text));
+    }
+
+    public List<Tag> getTagByName(String text) {
+        return repository.findByTextLike(text);
+    }
+
+    public boolean existsTagWithText(String text) {
+        return repository.existsByText(text);
+    }
+
+    protected boolean tagNotExists(int tagId) {
+        return !repository.existsById(tagId);
     }
 }
