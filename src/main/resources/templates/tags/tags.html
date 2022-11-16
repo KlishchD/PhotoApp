@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/img/favicon.ico">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i"
+          rel="stylesheet">
+
+    <link href="/css/mediumish.css" rel="stylesheet">
+</head>
+
+<body class="p-0">
+
+<nav class="navbar navbar-expand-lg bg-primary text-warning">
+    <div class="container">
+
+        <a class="navbar-brand" th:href="@{/profile}">
+            <img src="/img/logo.png" alt="logo">
+        </a>
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/profile}">Profile</a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div th:text="${error}"></div>
+    <div style="color: red" th:text="${param.error}"></div>
+    <div class="row row-cols-2">
+        <div class="col">
+            <div class="input-group">
+                <span class="input-group-text"> tag </span>
+                <div class="form-control">
+                    <input class="form-control" oninput="search()" id="tag-search-input">
+                    <ul id='new-tags' class="list-group">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <ul id='old-tags' class="list-group">
+                <li th:each="tag: ${tags}" class="list-group-item d-flex justify-content-around"
+                    th:id='${"tag-" + tag.id}'>
+                    <span class="w-75" th:text="${tag.text}"></span>
+                    <button class="w-25 btn btn-danger" th:onclick='removeTagFromPhoto([[${tag.id}]])'>remove</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+        integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+<script src="/js/mediumish.js"></script>
+<script>
+    search()
+
+    function search() {
+        let text = document.getElementById("tag-search-input").value
+        let tags = getTags(text)
+        document.getElementById("new-tags").innerHTML = ""
+        if (!existsTagWithText(text) && text !== "") {
+            document.getElementById("new-tags").innerHTML += addCreateTagHTML(text)
+        }
+        tags.forEach(tag => addTagToList(tag))
+    }
+
+    function addCreateTagHTML(text) {
+        return `<li class="list-group-item w-100 d-flex justify-content-around">
+                    <span class="w-75">${text}</span>
+                    <button class="w-25 btn btn-success" onclick="createTag('${text}')"> create </button>
+                </li>`
+    }
+
+    function existsTagWithText(text) {
+        return $.ajax({
+            url: "tag/exists",
+            data: {
+                text: text
+            },
+            type: "get",
+            async: false
+        }).responseJSON
+    }
+
+    function addTagToList(tag) {
+        if (isTagPartOfPhoto(tag.id)) return
+
+        let list = document.getElementById("new-tags")
+        list.innerHTML += getAddTagHTML(tag)
+    }
+
+    function isTagPartOfPhoto(tagId) {
+        return $.ajax({
+            url: "photo/exists/tag",
+            data: {
+                photoId: [[${param.photoId}]],
+                tagId: tagId
+            },
+            type: "get",
+            async: false
+        }).responseJSON
+    }
+
+    function getAddTagHTML(tag) {
+        return `<li class="list-group-item w-100 d-flex justify-content-around">
+                    <span class="w-75" id="tag-${tag.id}"> ${tag.text} </span>
+                    <button class="w-25 btn btn-success" onclick="addTagToPhoto(${tag.id})"> add </button>
+                </li>`
+    }
+
+    function getTagHTML(tag) {
+        return `<li class="list-group-item d-flex justify-content-around" id="tag-${tag.id}">
+                    <span class="w-75">${tag.text}</span>
+                    <button class="w-25 btn btn-danger" onclick="removeTagFromPhoto(${tag.id})">remove</button>
+                </li>`
+    }
+
+    function createTag(text) {
+        return $.ajax({
+            url: "tag/add",
+            data: {
+                text: text
+            },
+            success: function () {
+                search()
+            },
+            type: "post",
+            async: false
+        }).responseJSON
+    }
+
+    function addTagToPhoto(tagId) {
+        $.ajax({
+            url: "photo/add/tag",
+            data: {
+                tagId: tagId,
+                photoId: [[${param.photoId}]],
+                userId: [[${userId}]]
+            },
+            success: function () {
+                let tag = getTagToAdd(tagId)
+                console.log(tag)
+                document.getElementById("old-tags").innerHTML += getTagHTML(tag)
+                search()
+            },
+            type: "post",
+            async: false
+        })
+    }
+
+    function getTagToAdd(tagId) {
+        return {
+            id: tagId,
+            text: document.getElementById(`tag-${tagId}`).textContent
+        }
+    }
+
+    function getTags(text) {
+        return $.ajax({
+            url: "tag/get_by_name",
+            data: {
+                text: text
+            },
+            type: "get",
+            async: false
+        }).responseJSON
+    }
+
+    function removeTagFromPhoto(tagId) {
+        $.ajax({
+            url: "photo/remove/tag",
+            data: {
+                tagId: tagId,
+                photoId: [[${param.photoId}]],
+                userId: [[${userId}]]
+            },
+            success: function () {
+                document.getElementById(`tag-${tagId}`).remove()
+                search()
+            },
+            type: "post",
+            async: false
+        })
+    }
+
+    console.log($.ajax({
+        url: "photo/find",
+        data: JSON.stringify({
+            tagIds: [1],
+            page: 0,
+            pageSize: 100
+        }),
+        type: "post",
+        contentType: "application/json; charset=utf-8",
+        async: false
+    }))
+
+</script>
+</body>
+</html>

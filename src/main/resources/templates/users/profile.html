@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/img/favicon.ico">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i"
+          rel="stylesheet">
+
+    <link href="/css/mediumish.css" rel="stylesheet">
+
+
+</head>
+
+<body class="p-0">
+
+<nav class="navbar navbar-expand-lg bg-primary">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/profile}">
+            <img src="/img/logo.png" alt="logo">
+        </a>
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/create_desk}">Create Desk</a>
+            </li>
+        </ul>
+
+        <!--        <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="text" placeholder="Search">
+                    <span class="search-icon"><svg class="svgIcon-use" width="25" height="25" viewbox="0 0 25 25"><path
+                            d="M20.067 18.933l-4.157-4.157a6 6 0 1 0-.884.884l4.157 4.157a.624.624 0 1 0 .884-.884zM6.5 11c0-2.62 2.13-4.75 4.75-4.75S16 8.38 16 11s-2.13 4.75-4.75 4.75S6.5 13.62 6.5 11z"></path></svg></span>
+                </form>-->
+    </div>
+</nav>
+<form th:action="@{/profile}" method="get" class="d-flex justify-content-around">
+    <select th:name="permission" class="form-select rounded-0">
+        <option th:selected='${permission.equals("CREATOR")}' value="CREATOR">CREATOR</option>
+        <option th:selected='${permission.equals("FULL")}' value="FULL">FULL</option>
+        <option th:selected='${permission.equals("VIEW")}' value="VIEW">VIEW</option>
+        <option th:selected='${permission.equals("NONE")}' value="NONE">NONE</option>
+        <option th:selected='${permission.equals("ALL")}' value="ALL">ALL</option>
+    </select>
+    <select th:name="type" class="form-select rounded-0">
+        <option th:selected='${type.equals("PUBLIC")}' value="PUBLIC">PUBLIC</option>
+        <option th:selected='${type.equals("PRIVATE")}' value="PRIVATE">PRIVATE</option>
+        <option th:selected='${type.equals("ALL")}' value="ALL">ALL</option>
+    </select>
+    <button type="submit" class="btn btn-primary rounded-0">FIND</button>
+</form>
+<div class="row row-cols-5">
+
+</div>
+<div class="container mt-3">
+    <div class="row row-cols-auto justify-content-around">
+        <div class="card d-flex justify-content-center">
+            <div class="bg-white card-header d-flex justify-content-center">
+                <h2> Profile </h2>
+            </div>
+            <table class="table d-flex justify-content-around">
+                <tbody>
+                <tr>
+                    <td>Username</td>
+                    <td th:text="${username}"></td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td th:text="${email}"></td>
+                </tr>
+                <tr>
+                    <td>Desks number</td>
+                    <td th:text="${desksCount}"></td>
+                </tr>
+
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div th:text="${param.error}"></div>
+    <div class="row row-cols-4 justify-content-around">
+        <div class="card mt-3" th:each="desk: ${desks}">
+            <img class="card-img-top mt-2 rounded-3" src="/img/default-img.jpg">
+
+            <h2 class="card-header bg-white" th:text="${desk.name}"></h2>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"> Photo id:
+                    <td th:if="${photos.containsKey(desk.id) && photos.get(desk.id) != null}" th:text="${photos.get(desk.id)}"></td>
+                    <td th:if="${!photos.containsKey(desk.id) || photos.get(desk.id) == null}"> No photos </td>
+                </li>
+                <li class="list-group-item"> Id:
+                    <td th:text="${desk.id}"></td>
+                </li>
+                <li class="list-group-item"> Desk name:
+                    <td th:text="${desk.name}"></td>
+                </li>
+                <li class="list-group-item"> Desk description:
+                    <td th:text="${desk.description}"></td>
+                </li>
+                <li class="list-group-item"> Desk type:
+                    <td th:text="${desk.type}"></td>
+                </li>
+                <li class="list-group-item"> Owners:
+                    <td th:text="${owners.get(desk.id)}"></td>
+                </li>
+            </ul>
+
+            <div class="mt-3 mb-3 d-flex justify-content-around" role="group">
+                <form th:action="@{/perform_desk_deletion}" method="post">
+                    <input th:value="${desk.id}" name="deskId" hidden>
+                    <button type="submit" class="btn btn-outline-primary rounded-0" data-mdb-ripple-color="dark">
+                        Delete
+                    </button>
+                </form>
+                <form th:action="@{/update_desk}" method="get">
+                    <input th:value="${desk.id}" name="deskId" hidden>
+                    <button type="submit" class="btn btn-outline-primary rounded-0" data-mdb-ripple-color="dark">
+                        Update desk
+                    </button>
+                </form>
+                <form th:action="@{/view_photos}" method="get">
+                    <input th:value="${desk.id}" name="deskId" hidden>
+                    <input th:value="1" name="page" hidden>
+                    <button type="submit" class="btn btn-outline-primary rounded-0" data-mdb-ripple-color="dark">
+                        Photos
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="/js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+        integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+</body>
+</html>
+<!--<div class="d-flex justify-content-around">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex m-1 justify-content-around">
+            <p>Email</p>
+        </li>
+        <li class="list-group-item d-flex m-1 justify-content-around">
+            <p>Desks number</p>
+        </li>
+    </ul>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex m-1 justify-content-around">
+            <td >asfaf</td>
+        </li>
+        <li class="list-group-item d-flex m-1 justify-content-around">
+            <td>asd</td>
+        </li>
+    </ul>
+</div>-->

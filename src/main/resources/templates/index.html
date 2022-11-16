@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+    Works::::)))
+    <form th:action="@{/perform_logout}" method="post">
+        <p>
+            Welcome <b>[[${#request.userPrincipal.principal.username}]]</b>
+        </p>
+        <input type="submit" value="Sign Out" />
+    </form></body>
+    <a th:href="@{/create_desk}"> Create Desk </a>
+    <a th:href="@{/get_desks}"> View your desks </a>
+</html>

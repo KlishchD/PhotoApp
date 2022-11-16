@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="/img/favicon.ico">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i"
+          rel="stylesheet">
+
+    <link href="/css/mediumish.css" rel="stylesheet">
+</head>
+
+<body class="p-0">
+
+<nav class="navbar navbar-expand-lg bg-primary text-warning">
+    <div class="container">
+
+        <a class="navbar-brand" th:href="@{/profile}">
+            <img src="/img/logo.png" alt="logo">
+        </a>
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/profile}">Profile</a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div th:text="${error}"></div>
+    <div style="color: red" th:text="${param.error}"></div>
+    <div class="row row-cols-3" th:if="${error == null || error.isEmpty()}">
+        <div class="col">
+            <p> Desk information </p>
+            <form th:action="@{/perform_desk_update}" method="post">
+                <input th:value="${desk.id}" th:name="id" hidden>
+                <div class="input-group w-100">
+                    <span class="input-group-text">Desk name</span>
+                    <input class="form-control" th:name="name" th:value="${desk.name}">
+                </div>
+                <div class="align-content-center w-100 mt-4">
+                    <div class="input-group">
+                        <span class="input-group-text">Desk description</span>
+                        <input class="form-control" th:name="description" th:value="${desk.description}">
+                    </div>
+                </div>
+                <div class="input-group w-100 mt-4">
+                    <span class="input-group-text w-50"> New desk type</span>
+                    <select class="custom-select w-50" th:name="type">
+                        <option th:selected='${desk.type.toString().equals("PUBLIC")}' value="PUBLIC">PUBLIC</option>
+                        <option th:selected='${desk.type.toString().equals("PRIVATE")}' value="PRIVATE">PRIVATE</option>
+                    </select>
+                </div>
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary" type="submit">Update</button>
+                </div>
+            </form>
+        </div>
+        <div class="col">
+            <p> Desk owners </p>
+            <ul id="owners" class="list-group d-flex justify-content-center w-100">
+                <li th:each="owner: ${owners}" class="list-group-item d-flex justify-content-around"
+                    th:id='${"owner-" + owner.userId}'>
+                    <p class="w-25" th:text="${usernames.get(owner.userId)}"></p>
+                    <select class="form-select bg-primary text-white w-50" disabled>
+                        <option selected
+                                th:text='${owner.permission.toString().substring(0, owner.permission.toString().lastIndexOf("_")).replaceAll("_", " ")}'></option>
+                    </select>
+                    <button class="btn btn-danger w-25" th:onclick='removeOwner([[${owner.userId}]])'
+                            th:id='${"remove_user_" + owner.userId}'>remove
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="col">
+            <p> Add desk owners </p>
+            <div class="w-100 input-group">
+                <span class="input-group-text w-25">Owner</span>
+                <input class="input-group-text w-75 bg-white" id="user-search-field" type="search"
+                       oninput="search()" th:value="${param.username}"
+                       th:name="username">
+            </div>
+            <ul id="users" class="list-group d-flex justify-content-center w-100">
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+        integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+<script src="/js/mediumish.js"></script>
+<script>
+    search()
+
+    function search() {
+        $.ajax({
+            url: "/find_users",
+            data: {
+                username: getDesiredUsername()
+            },
+            type: "get",
+            async: false
+        }).done(updateUsersList)
+    }
+
+    function getDesiredUsername() {
+        return document.getElementById("user-search-field").value
+    }
+
+    function updateUsersList(newUsers) {
+        clearUsersList()
+        newUsers.filter(isUserNotOwner).forEach(addUserToList)
+    }
+
+    function addUserToList(user) {
+        document.getElementById("users").innerHTML += getHTMLForUser(user)
+    }
+
+    function getHTMLForUser(user) {
+        return `<li class="list-group-item d-flex justify-content-around">
+                <p class="w-25" id="username-${user.id}"> ${user.username} </p>
+                ${getPermissionLevelSelectHTML(user.id) + getAddOwnerButtonHTML(user.id)}
+             </li>`
+    }
+
+    function getPermissionLevelSelectHTML(userId) {
+        return `<select class="form-select bg-primary text-white w-50" id="level-${userId}">
+                    <option value="VIEW_ONLY_PERMISSION">VIEW ONLY</option>
+                    <option value="PHOTO_MANAGER_PERMISSION">PHOTO MANAGER</option>
+                    <option value="FULL_PERMISSION">FULL</option>
+                </select>`
+    }
+
+    function getAddOwnerButtonHTML(userId) {
+        return `<button class="btn btn-success w-25" onclick="addOwner(${userId})">add</button>`
+    }
+
+    function clearUsersList() {
+        document.getElementById("users").innerHTML = ""
+    }
+
+    function isUserNotOwner(user) {
+        return !isUserOwner(user)
+    }
+
+    function isUserOwner(user) {
+        return $.ajax({
+                url: "/desk/get/owner_permission",
+                data: {
+                    deskId: [[${param.deskId}]],
+                    userId: user.id,
+                    userIdWhoAsks: [[${userId}]]
+                },
+                type: "get",
+                async: false
+            }
+        ).responseJSON !== "NO_PERMISSIONS"
+    }
+
+    function removeOwner(userId) {
+        $.ajax({
+            url: "/desk/remove/owner",
+            data: {
+                deskId: [[${param.deskId}]],
+                userId: userId,
+                removerId: [[${userId}]]
+            },
+            success: function () {
+                updateListsAfterOwnerRemoved(userId)
+            },
+            type: "post",
+            async: false
+        })
+    }
+
+    function updateListsAfterOwnerRemoved(userId) {
+        removeOwnerFromList(userId)
+        search()
+    }
+
+    function removeOwnerFromList(userId) {
+        document.getElementById(`owner-${userId}`).remove()
+    }
+
+    function addOwner(userId) {
+        $.ajax({
+            url: "/desk/add/owner",
+            data: {
+                deskId: [[${param.deskId}]],
+                userId: userId,
+                permission: getSelectedPermission(userId),
+                adderId: [[${userId}]]
+            },
+            success: function () {
+                updateListsAfterNewOwnerAdded(userId)
+            },
+            type: "post",
+            async: false
+        })
+    }
+
+    function updateListsAfterNewOwnerAdded(userId) {
+        addOwnerToOwnersList(userId)
+        search()
+    }
+
+    function addOwnerToOwnersList(userId) {
+        console.log(getNewOwnerData(userId))
+        document.getElementById("owners").innerHTML += getOwnerHTML(...getNewOwnerData(userId))
+    }
+
+    function getNewOwnerData(userId) {
+        return [userId, getUsername(userId), parsePermission(getSelectedPermission(userId))];
+    }
+
+    function parsePermission(permission) {
+        return permission.slice(0, permission.lastIndexOf('_')).replaceAll('_', ' ')
+    }
+
+    function getUsername(userId) {
+        return document.getElementById(`username-${userId}`).textContent
+    }
+
+    function getSelectedPermission(userId) {
+        return document.getElementById(`level-${userId}`).value
+    }
+
+
+    function  getOwnerHTML(userId, username, permission) {
+        return `<li class="list-group-item d-flex justify-content-around" id='owner-${userId}'>
+                <p class="w-25">${username}</p>
+                <select class="form-select bg-primary text-white w-50" disabled>
+                    <option selected>${permission}</option>
+                </select>
+                <button class="btn btn-danger w-25" onclick='removeOwner(${userId})' id='remove_user-${userId}'> remove </button>
+            </li>`
+    }
+</script>
+</body>
+</html>
