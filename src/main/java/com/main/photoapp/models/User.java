@@ -18,7 +18,7 @@ public class User {
 
     @Column(name = "username")
     @Getter @Setter
-    private String nickname;
+    private String username;
 
     @Column(name = "email")
     @Getter @Setter
@@ -36,16 +36,9 @@ public class User {
 
     }
 
-    public User(String nickname, String email, String password) {
-        this.nickname = nickname;
+    public User(String username, String email, String password) {
+        this.username = username;
         this.email = email;
         this.password = password;
-    }
-
-    public UserDetails getSecurityUserDetails() {
-        return org.springframework.security.core.userdetails.User
-                .withUsername(nickname)
-                .password(password)
-                .roles("USER").build();
     }
 }

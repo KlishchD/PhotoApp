@@ -1,4 +1,4 @@
-package com.main.photoapp.models;
+package com.main.photoapp.models.Tag;
 
 import lombok.Getter;
 import lombok.Setter;

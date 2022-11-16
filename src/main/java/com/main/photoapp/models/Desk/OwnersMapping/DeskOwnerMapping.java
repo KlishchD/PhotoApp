@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
 
 @Table(name = "desks_owners")
 @IdClass(DeskOwnerMappingId.class)
@@ -12,16 +15,19 @@ public class DeskOwnerMapping {
 
     @Id
     @Column(name = "desk_id", nullable = false)
-    @Getter @Setter
+    @Getter
+    @Setter
     private int deskId;
 
     @Id
     @Column(name = "user_id", nullable = false)
-    @Getter @Setter
+    @Getter
+    @Setter
     private int userId;
 
     @Column(name = "permission_level", nullable = false)
-    @Getter @Setter
+    @Getter
+    @Setter
     private Permission permission;
 
     public DeskOwnerMapping() {
@@ -61,7 +67,7 @@ public class DeskOwnerMapping {
                 return 1;
             }
         },
-        PHOTO_MANAGEMENT_PERMISSION {
+        PHOTO_MANAGER_PERMISSION {
             @Override
             public boolean canAccessPublicDesk() {
                 return true;
@@ -175,20 +181,42 @@ public class DeskOwnerMapping {
             return false;
         }
 
+        public static List<Permission> permissionsCanAccessPublicDesk() {
+            return Arrays.stream(values()).filter(Permission::canAccessPublicDesk).toList();
+        }
+
         public boolean canAccessPrivateDesk() {
             return false;
+        }
+
+
+        public static List<Permission> permissionsCanAccessPrivateDesk() {
+            return Arrays.stream(values()).filter(Permission::canAccessPrivateDesk).toList();
         }
 
         public boolean canAddOwner() {
             return false;
         }
 
+        public static List<Permission> permissionsCanAddOwner() {
+            return Arrays.stream(values()).filter(Permission::canAddOwner).toList();
+        }
+
         public boolean canRemoveOwner() {
             return false;
         }
 
+
+        public static List<Permission> permissionsCanRemoveOwner() {
+            return Arrays.stream(values()).filter(Permission::canRemoveOwner).toList();
+        }
+
         public boolean canDeleteDesk() {
             return false;
+        }
+
+        public static List<Permission> permissionsCanDeleteDesk() {
+            return Arrays.stream(values()).filter(Permission::canDeleteDesk).toList();
         }
 
         public abstract int getLevel();
@@ -197,12 +225,25 @@ public class DeskOwnerMapping {
             return false;
         }
 
+        public static List<Permission> permissionsCanAddPhoto() {
+            return Arrays.stream(values()).filter(Permission::canAddPhoto).toList();
+        }
+
         public boolean canRemovePhoto() {
             return false;
+        }
+
+        public static List<Permission> permissionsCanRemovePhoto() {
+            return Arrays.stream(values()).filter(Permission::canRemovePhoto).toList();
         }
 
         public boolean canModifyDeskInformation() {
             return false;
         }
+
+        public static List<Permission> permissionsCanModifyDeskInformation() {
+            return Arrays.stream(values()).filter(Permission::canModifyDeskInformation).toList();
+        }
+
     }
 }
