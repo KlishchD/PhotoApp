@@ -2,13 +2,11 @@ package com.main.photoapp.services;
 
 import com.main.photoapp.exceptions.TagAlreadyExistsException;
 import com.main.photoapp.exceptions.TagNotFoundException;
-import com.main.photoapp.models.Tag;
+import com.main.photoapp.models.Tag.Tag;
 import com.main.photoapp.repositories.TagsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Component
