@@ -6,26 +6,27 @@ import com.main.photoapp.exceptions.NotEnoughPermissionsException;
 import com.main.photoapp.exceptions.UserNotFoundException;
 import com.main.photoapp.services.Desks.DesksPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 public class DesksPhotoController {
     @Autowired
     private DesksPhotoService service;
 
     @PostMapping("/desk/add/photo")
-    @ResponseBody
     public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
         service.addPhotoToTable(deskId, photoId, userId);
     }
 
+    @GetMapping("/desk/is_photo")
+    public boolean isPhotoPartOfDesk(@RequestParam int deskId, @RequestParam int photoId) {
+        return service.isPhotoPartOfDesk(deskId, photoId);
+    }
+
     @PostMapping("/desk/remove/photo")
-    @ResponseBody
     public void removePhotoFromTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, NoSuchPhotoOnDesk, UserNotFoundException {
         service.removePhotoFromTable(deskId, photoId, userId);
     }
-
 }

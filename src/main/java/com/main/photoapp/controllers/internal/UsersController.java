@@ -15,23 +15,16 @@ public class UsersController {
     @Autowired
     private UsersService service;
 
-    /*@PostMapping("/login")
-    @ResponseBody
-    public boolean logIn(@RequestParam String nickname, @RequestParam String password) {
-        System.out.println("Here");
-        return service.logIn(nickname, password);
-    }*/
-
     @PostMapping("/user/create")
     @ResponseBody
-    public int createUser(@RequestParam String nickname, @RequestParam String email, @RequestParam String password) throws NicknameIsAlreadyTakenException, EmailIsAlreadyTakenException, IncorrectEmailFormat, IncorrectNicknameFormat, IncorrectPasswordFormat {
-        return service.createUser(nickname, email, password);
+    public int createUser(@RequestParam String username, @RequestParam String email, @RequestParam String password) throws UsernameIsAlreadyTakenException, EmailIsAlreadyTakenException, IncorrectEmailFormat, IncorrectUsernameFormat, IncorrectPasswordFormat {
+        return service.createUser(username, email, password);
     }
 
-    @GetMapping("/user/find/by/nickname")
+    @GetMapping("/user/find/by/username")
     @ResponseBody
-    public User getUser(@RequestParam String nickname) throws UserNotFoundException, IncorrectNicknameFormat {
-        return service.getUserByNickname(nickname);
+    public User getUser(@RequestParam String username) throws UserNotFoundException, IncorrectUsernameFormat {
+        return service.getUserByUsername(username);
     }
 
 
