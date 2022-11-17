@@ -2,19 +2,24 @@ package com.main.photoapp;
 
 import com.main.photoapp.Utils.DesksUtils;
 import com.main.photoapp.Utils.UsersUtils;
+import com.main.photoapp.exceptions.IncorrectUsernameFormat;
+import com.main.photoapp.exceptions.UserNotFoundException;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
-import com.main.photoapp.repositories.DeskOwnerRepository;
-import com.main.photoapp.repositories.DeskRepository;
+import com.main.photoapp.repositories.DesksOwnerRepository;
+import com.main.photoapp.repositories.DesksRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Random;
 
+import static com.main.photoapp.Utils.RandomTextGenerator.getRandomEmail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -25,10 +30,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class DesksOwnersControllerTests {
     @Autowired
-    private DeskRepository desksRepository;
+    private DesksRepository desksRepository;
 
     @Autowired
-    private DeskOwnerRepository deskOwnerRepository;
+    private DesksOwnerRepository desksOwnerRepository;
 
     @Autowired
     private DesksUtils desksUtils;
@@ -43,16 +48,27 @@ public class DesksOwnersControllerTests {
 
     private final String NON_EXISTING_ID = "-100";
 
+    private static final String USERNAME = "ADMINISTRATOR";
+
+    private static final String PASSWORD = "ADMINISTRATOR";
+
+
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         random = new Random(0);
         desksRepository.deleteAll();
-        deskOwnerRepository.deleteAll();
+        desksOwnerRepository.deleteAll();
         usersUtils.clearRepository();
+        usersUtils.createUser(USERNAME, getRandomEmail(random), PASSWORD);
+    }
 
+    @AfterEach
+    public void cleanUp() throws UserNotFoundException, IncorrectUsernameFormat {
+        usersUtils.removeUser(USERNAME);
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_correctInput_addsOwnerToDesk() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -65,14 +81,15 @@ public class DesksOwnersControllerTests {
                 .param("permission", String.valueOf(DeskOwnerMapping.Permission.VIEW_ONLY_PERMISSION))
                 .param("adderId", creatorId)).andExpect(status().isOk());
 
-        assertTrue(deskOwnerRepository.existsByDeskIdAndUserId(Integer.parseInt(deskId), Integer.parseInt(userId)));
+        assertTrue(desksOwnerRepository.existsByDeskIdAndUserId(Integer.parseInt(deskId), Integer.parseInt(userId)));
 
-        DeskOwnerMapping.Permission permission = deskOwnerRepository.findByDeskIdAndUserId(Integer.parseInt(deskId), Integer.parseInt(userId)).get().getPermission();
+        DeskOwnerMapping.Permission permission = desksOwnerRepository.findByDeskIdAndUserId(Integer.parseInt(deskId), Integer.parseInt(userId)).get().getPermission();
 
         assertEquals(DeskOwnerMapping.Permission.VIEW_ONLY_PERMISSION, permission);
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_nonExistingDesk_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -87,6 +104,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_nonExistingUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -101,6 +119,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_nonExistingAdder_throwsException() throws Exception {
         String deskId = desksUtils.createPublicDesk(random);
         String userId = usersUtils.createUser(random);
@@ -115,6 +134,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_creatorTriesToGiveCreatorPermission_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -131,6 +151,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_userIsAnOwner_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -148,6 +169,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_ownerTriesToAddOwnerWithEqualPermissions_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -166,6 +188,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addOwnerToDesk_adderIdNotOwner_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -184,6 +207,7 @@ public class DesksOwnersControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwners_correctInput_returnsOwners() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -200,6 +224,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwners_nonExistingDesk_throwsException() throws Exception {
         String userId = usersUtils.createUser(random);
 
@@ -211,6 +236,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwners_nonExistingUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -223,6 +249,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwners_publicDeskAndUserIsNotOwner_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -238,6 +265,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwners_privateDeskAndUserIsNotOwner_throwException() throws Exception {
         String userId = usersUtils.createUser(random);
         String deskId = desksUtils.createPrivateDesk(random);
@@ -251,6 +279,7 @@ public class DesksOwnersControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnerPermission_correctInput_returnsOwnerPermission() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -268,6 +297,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnerPermission_nonExistingUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -281,6 +311,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnerPermission_userNotOwner_returnsNO_PERMISSIONS() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -297,6 +328,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnerPermission_nonExistingUserIdWhoAsks_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -312,6 +344,7 @@ public class DesksOwnersControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnersWithPermission_publicDeskAndUserIsOwner_returnsOwners() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -329,6 +362,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnersWithPermission_publicDeskAndUserIsNotOwner_returnsOwners() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId1 = usersUtils.createUser(random);
@@ -347,6 +381,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnersWithPermission_privateDeskAndUserIsOwner_returnsOwners() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -364,6 +399,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnersWithPermission_privateDeskAndUserIsNotOwner_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId2 = usersUtils.createUser(random);
@@ -378,6 +414,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnersWithPermission_nonExistingUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -391,6 +428,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getOwnersWithPermission_nonExistingDesk_throwsException() throws Exception {
         String userId = usersUtils.createUser(random);
 
@@ -404,6 +442,7 @@ public class DesksOwnersControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getCreator_publicDeskAndUserIsOwner_returnsCreator() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -420,6 +459,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getCreator_publicDeskAndUserIsNotOwner_returnsCreator() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId2 = usersUtils.createUser(random);
@@ -435,6 +475,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getCreator_privateDeskAndUserIsOwner_returnsCreator() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId = usersUtils.createUser(random);
@@ -451,6 +492,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getCreator_privateDeskAndUserIsNotOwner_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String userId2 = usersUtils.createUser(random);
@@ -464,6 +506,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getCreator_nonExistingUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -476,6 +519,7 @@ public class DesksOwnersControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getCreator_nonExistingDesk_throwsException() throws Exception {
         String userId = usersUtils.createUser(random);
 

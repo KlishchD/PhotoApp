@@ -2,25 +2,29 @@ package com.main.photoapp;
 
 import com.main.photoapp.Utils.DesksUtils;
 import com.main.photoapp.Utils.UsersUtils;
+import com.main.photoapp.exceptions.IncorrectUsernameFormat;
+import com.main.photoapp.exceptions.UserNotFoundException;
 import com.main.photoapp.models.Desk.Desk;
-import com.main.photoapp.repositories.DeskRepository;
+import com.main.photoapp.repositories.DesksRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Random;
 
-import static com.main.photoapp.Utils.RandomTextGenerator.getRandomDescription;
-import static com.main.photoapp.Utils.RandomTextGenerator.getRandomName;
+import static com.main.photoapp.Utils.RandomTextGenerator.*;
 import static com.main.photoapp.utils.DeskDescriptionChecker.DESK_DESCRIPTION_MAX_SIZE;
 import static com.main.photoapp.utils.DeskNameChecker.DESK_NAME_MAX_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -28,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DesksControllerTests {
 
     @Autowired
-    private DeskRepository desksRepository;
+    private DesksRepository desksRepository;
 
     @Autowired
     private DesksUtils desksUtils;
@@ -39,21 +43,32 @@ public class DesksControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    private Random random;
+    private static Random random = new Random(0);
 
     private final String NON_EXISTING_ID = "-100";
 
     private final String DESK_NAME_INCORRECT_FORMAT = "a".repeat(DESK_NAME_MAX_SIZE + 1);
     private final String DESK_DESCRIPTION_INCORRECT_FORMAT = "a".repeat(DESK_DESCRIPTION_MAX_SIZE + 1);
 
+    private static final String USERNAME = "ADMINISTRATOR";
+
+    private static final String PASSWORD = "ADMINISTRATOR";
+
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception {
         random = new Random(0);
         usersUtils.clearRepository();
         desksRepository.deleteAll();
+
+        usersUtils.createUser(USERNAME, getRandomEmail(random), PASSWORD);
+    }
+    @AfterEach
+    public void cleanUp() throws UserNotFoundException, IncorrectUsernameFormat {
+        usersUtils.removeUser(USERNAME);
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addDesk_publicDesk_createsPublicDesk() throws Exception {
         String name = getRandomName(random);
         String description = getRandomDescription(random);
@@ -77,6 +92,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addDesk_privateDesk_createsPrivateDesk() throws Exception {
         String name = getRandomName(random);
         String description = getRandomDescription(random);
@@ -100,6 +116,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addDesk_incorrectDeskNameFormat_createsDesk() throws Exception {
         mockMvc.perform(post("/desk/add")
                         .param("name", DESK_NAME_INCORRECT_FORMAT)
@@ -111,6 +128,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addDesk_incorrectDeskDescriptionFormat_createsDesk() throws Exception {
         mockMvc.perform(post("/desk/add")
                         .param("name", getRandomName(random))
@@ -122,6 +140,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void addDesk_nonExistingUser_createsDesk() throws Exception {
         mockMvc.perform(post("/desk/add")
                         .param("name", getRandomName(random))
@@ -134,6 +153,7 @@ public class DesksControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void removeDesk_correctInput_removesDesk() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -148,6 +168,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void removeDesk_nonOwnerUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -161,6 +182,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void removeDesk_nonExistingDesk_throwsException() throws Exception {
         String userId = usersUtils.createUser(random);
 
@@ -172,6 +194,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void removeDesk_nonExistingUser_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -183,8 +206,8 @@ public class DesksControllerTests {
                 .andExpect(status().reason("User not found"));
     }
 
-
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getDeskInformation_publicDeskOwner_returnsDeskInformation() throws Exception {
         String name = getRandomName(random);
         String description = getRandomDescription(random);
@@ -201,6 +224,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getDeskInformation_publicDeskNonOwner_returnsDeskInformation() throws Exception {
         String name = getRandomName(random);
         String description = getRandomDescription(random);
@@ -218,6 +242,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getDeskInformation_privateDeskOwner_returnsDeskInformation() throws Exception {
         String name = getRandomName(random);
         String description = getRandomDescription(random);
@@ -234,6 +259,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getDeskInformation_privateDeskNonOwner_throwsException() throws Exception {
         String name = getRandomName(random);
         String description = getRandomDescription(random);
@@ -249,6 +275,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getDeskInformation_nonExistingDesk_throwsException() throws Exception {
         String userId = usersUtils.createUser(random);
 
@@ -260,6 +287,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void getDeskInformation_nonExistingUser_throwsException() throws Exception {
         String deskId = desksUtils.createPublicDesk(random);
 
@@ -273,6 +301,7 @@ public class DesksControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskName_correctInput_updatesDesksName() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -290,6 +319,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskName_nonExistingDesk_throwsException() throws Exception {
         mockMvc.perform(post("/desk/update/name")
                         .param("deskId", NON_EXISTING_ID)
@@ -300,6 +330,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskName_nonExistingUser_throwException() throws Exception {
         mockMvc.perform(post("/desk/update/name")
                         .param("deskId", desksUtils.createPublicDesk(random))
@@ -310,6 +341,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskName_nonDeskOwner_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String randomUserId = usersUtils.createUser(random);
@@ -325,6 +357,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskName_incorrectDeskNameFormat_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -339,6 +372,7 @@ public class DesksControllerTests {
 
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskDescription_correctInput_updatesDesksDescription() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);
@@ -356,6 +390,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskDescription_nonExistingDesk_throwsException() throws Exception {
         mockMvc.perform(post("/desk/update/description")
                         .param("deskId", NON_EXISTING_ID)
@@ -366,6 +401,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskDescription_nonExistingUser_throwException() throws Exception {
         mockMvc.perform(post("/desk/update/description")
                         .param("deskId", desksUtils.createPublicDesk(random))
@@ -376,6 +412,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskDescription_nonDeskOwner_throwsException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String randomUserId = usersUtils.createUser(random);
@@ -391,6 +428,7 @@ public class DesksControllerTests {
     }
 
     @Test
+    @WithMockUser(username = USERNAME, password = PASSWORD)
     public void updateDeskDescription_incorrectDeskDescriptionFormat_throwException() throws Exception {
         String creatorId = usersUtils.createUser(random);
         String deskId = desksUtils.createPublicDesk(creatorId, random);

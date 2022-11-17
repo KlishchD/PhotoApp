@@ -1,10 +1,9 @@
 package com.main.photoapp.Utils;
 
-import com.main.photoapp.services.TagsService;
+import com.main.photoapp.services.Tags.TagsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Random;
 
 import static com.main.photoapp.Utils.RandomTextGenerator.getRandomTagText;

@@ -8,8 +8,8 @@ import static com.main.photoapp.utils.DeskDescriptionChecker.DESK_DESCRIPTION_MA
 import static com.main.photoapp.utils.DeskDescriptionChecker.DESK_DESCRIPTION_MIN_SIZE;
 import static com.main.photoapp.utils.DeskNameChecker.DESK_NAME_MAX_SIZE;
 import static com.main.photoapp.utils.DeskNameChecker.DESK_NAME_MIN_SIZE;
-import static com.main.photoapp.utils.NicknameChecker.NICKNAME_MAXIMAL_SIZE;
-import static com.main.photoapp.utils.NicknameChecker.NICKNAME_MINIMAL_SIZE;
+import static com.main.photoapp.utils.UsernameChecker.USERNAME_MAXIMAL_SIZE;
+import static com.main.photoapp.utils.UsernameChecker.USERNAME_MINIMAL_SIZE;
 import static com.main.photoapp.utils.PasswordChecker.PASSWORD_MAXIMAL_SIZE;
 import static com.main.photoapp.utils.PasswordChecker.PASSWORD_MINIMAL_SIZE;
 import static com.main.photoapp.utils.TagTextChecker.TAG_TEXT_MAX_SIZE;
@@ -38,8 +38,8 @@ public class RandomTextGenerator {
         return getRandomText(size, random);
     }
 
-    public static synchronized String getRandomNickname(Random random) {
-        int size = random.nextInt(NICKNAME_MINIMAL_SIZE, NICKNAME_MAXIMAL_SIZE + 1);
+    public static synchronized String getRandomUsername(Random random) {
+        int size = random.nextInt(USERNAME_MINIMAL_SIZE, USERNAME_MAXIMAL_SIZE + 1);
         return getRandomText(size, random);
     }
 
