@@ -80,7 +80,7 @@ public class UsersService {
         users.save(user);
     }
 
-    private String getUsername(int userId) {
+    public String getUsername(int userId) {
         return users.findById(userId).get().getUsername();
     }
 
