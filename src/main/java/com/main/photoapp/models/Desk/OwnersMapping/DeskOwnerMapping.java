@@ -189,7 +189,6 @@ public class DeskOwnerMapping {
             return false;
         }
 
-
         public static List<Permission> permissionsCanAccessPrivateDesk() {
             return Arrays.stream(values()).filter(Permission::canAccessPrivateDesk).toList();
         }
