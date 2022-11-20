@@ -18,9 +18,9 @@ public class Photo {
     @Getter @Setter
     private String description;
 
-    @Column(name = "paths", nullable = false, unique = true)
+    @Column(name = "path", nullable = false, unique = true)
     @Getter @Setter
-    private String paths;
+    private String path;
 
     @Column(name = "owner_id", nullable = false)
     @Getter @Setter
@@ -30,9 +30,9 @@ public class Photo {
 
     }
 
-    public Photo(String description, String paths, int ownerId) {
+    public Photo(String description, String path, int ownerId) {
         this.description = description;
-        this.paths = paths;
+        this.path = path;
         this.ownerId = ownerId;
     }
 }
