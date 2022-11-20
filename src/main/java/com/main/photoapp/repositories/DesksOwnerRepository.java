@@ -1,15 +1,13 @@
 package com.main.photoapp.repositories;
 
-import com.main.photoapp.models.Desk.Desk;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMappingId;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.relational.core.sql.In;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface DeskOwnerRepository extends JpaRepository<DeskOwnerMapping, DeskOwnerMappingId> {
+public interface DesksOwnerRepository extends JpaRepository<DeskOwnerMapping, DeskOwnerMappingId> {
 
     List<DeskOwnerMapping> findByDeskId(int deskId);
 
