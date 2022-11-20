@@ -7,6 +7,7 @@ import com.main.photoapp.models.User;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import com.main.photoapp.services.Desks.DesksPhotoService;
 import com.main.photoapp.services.Desks.DesksService;
+import com.main.photoapp.services.PhotoService;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,6 +35,9 @@ public class UsersExternalController extends ExternalControllerBase {
 
     @Autowired
     private UsersService usersService;
+
+    @Autowired
+    private PhotoService photoService;
 
     private static final Map<String, List<DeskOwnerMapping.Permission>> permissionMapping = new HashMap<>();
     private static final Map<String, List<Desk.DeskType>> typesMapping = new HashMap<>();
