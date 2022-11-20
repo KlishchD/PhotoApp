@@ -31,7 +31,13 @@
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/profile}">Profile</a>
+            </li>
+            <li class="nav-item active">
                 <a class="nav-link text-white" th:href="@{/create_desk}">Create Desk</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/photo/upload}">Upload Photo</a>
             </li>
         </ul>
 
@@ -53,11 +59,11 @@
             <div class="row row-cols-auto justify-content-around">
                 <div class="card m-3">
                     <a th:href="@{/photo(photoId=${param.photoId})}">
-                        <img class="card-img mt-2 rounded-3" src="/img/default-img.jpg" width="300" height="300">
+                        <img class="card-img mt-2 rounded-3" th:src="${path}" width="300" height="300">
                     </a>
                     <div class="card-body row row-cols-1">
                         <span> id: <td th:text="${param.photoId}"></td></span>
-                        <span> author: <td>in progress;)</td></span>
+                        <span> author: <td th:text="${owner}"></td></span>
                         <span> tags: <td th:each="tag: ${tags}" th:text='${tag + " "}'></td></span>
                         <button class="btn btn-success" onclick="openDeskSearch()">save</button>
                     </div>

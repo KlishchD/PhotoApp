@@ -44,6 +44,9 @@
             <li class="nav-item active">
                 <a class="nav-link text-white" th:href="@{/profile}">Profile</a>
             </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/create_desk}">Create Desk</a>
+            </li>
         </ul>
 
         <!--
@@ -56,29 +59,30 @@
 
     </div>
 </nav>
-
 <div class="vertical-center">
     <div class="container align-middle d-flex justify-content-center">
-        <div th:text="${param.error}"></div>
-        <form th:action="@{/perform_photo_upload}" method="post">
-            <div class="align-content-center center-block">
-                <div class="input-group">
-                    <span class="input-group-text">Photo description</span>
-                    <input class="form-control" th:name="description" th:value="${param.decription}">
+        <div>
+            <div class="text-danger" th:text="${param.error}"></div>
+            <form th:action="@{/perform_photo_upload}" method="post" enctype="multipart/form-data">
+                <div class="align-content-center center-block">
+                    <div class="input-group">
+                        <span class="input-group-text">Photo description</span>
+                        <input class="form-control" th:name="description" th:value="${param.description}">
+                    </div>
                 </div>
-            </div>
-            <br>
-            <div class="align-content-center center-block">
-                <div class="input-group">
-                    <input class="form-control" th:name="photo" type="file">
+                <br>
+                <div class="align-content-center center-block">
+                    <div class="input-group">
+                        <input class="form-control" th:name="photo" accept="image/*" type="file">
+                    </div>
                 </div>
-            </div>
-            <input hidden class="form-control" th:name="ownerId" th:value="${userId}">
-            <br>
-            <div class="text-center">
-                <button class="btn btn-outline-primary" type="submit">Create</button>
-            </div>
-        </form>
+                <input hidden class="form-control" th:name="ownerId" th:value="${userId}">
+                <br>
+                <div class="text-center">
+                    <button class="btn btn-outline-primary" type="submit">Create</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

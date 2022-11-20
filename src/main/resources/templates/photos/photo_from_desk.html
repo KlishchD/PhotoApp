@@ -31,7 +31,13 @@
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/profile}">Profile</a>
+            </li>
+            <li class="nav-item active">
                 <a class="nav-link text-white" th:href="@{/create_desk}">Create Desk</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/photo/upload}">Upload Photo</a>
             </li>
         </ul>
 
@@ -51,14 +57,14 @@
     <div class="row row-cols-1 justify-content-around">
         <div class="col">
             <div class="row row-cols-auto justify-content-around">
-                <div class="card m-3" th:each="photoId: ${photos}">
-                    <a th:href="@{/photo(photoId=${photoId})}">
-                        <img class="card-img mt-2 rounded-3" src="/img/default-img.jpg" width="300" height="300">
+                <div class="card m-3" th:each="photo: ${photos}">
+                    <a th:href="@{/photo(photoId=${photo.getId()})}">
+                        <img class="card-img mt-2 rounded-3" th:src="${photo.getPath()}" width="300" height="300">
                     </a>
                     <div class="card-body row row-cols-1">
-                        <span> id: <td th:text="${photoId}"></td></span>
-                        <span> author: <td>in progress;)</td></span>
-                        <button th:if="${canManagePhoto}" th:id='${"remove-photo-" + photoId + "-button"}' th:onclick='removePhoto([[${photoId}]])' class="btn btn-danger">remove</button>
+                        <span> description: <td th:text="${photo.getDescription()}"></td></span>
+                        <span> author: <td th:text="${users.get(photo.getOwnerId())}"></td></span>
+                        <button th:if="${canManagePhoto}" th:id='${"remove-photo-" + photo.getId() + "-button"}' th:onclick='removePhoto([[${photo.getId()}]])' class="btn btn-danger">remove</button>
                     </div>
                 </div>
             </div>
