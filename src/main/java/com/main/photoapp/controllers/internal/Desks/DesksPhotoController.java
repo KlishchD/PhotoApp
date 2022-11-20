@@ -1,9 +1,6 @@
 package com.main.photoapp.controllers.internal.Desks;
 
-import com.main.photoapp.exceptions.DeskNotFoundException;
-import com.main.photoapp.exceptions.NoSuchPhotoOnDesk;
-import com.main.photoapp.exceptions.NotEnoughPermissionsException;
-import com.main.photoapp.exceptions.UserNotFoundException;
+import com.main.photoapp.exceptions.*;
 import com.main.photoapp.services.Desks.DesksPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
@@ -16,7 +13,7 @@ public class DesksPhotoController {
     private DesksPhotoService service;
 
     @PostMapping("/desk/add/photo")
-    public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException {
+    public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException, PhotoNotFoundException {
         service.addPhotoToTable(deskId, photoId, userId);
     }
 
@@ -26,7 +23,7 @@ public class DesksPhotoController {
     }
 
     @PostMapping("/desk/remove/photo")
-    public void removePhotoFromTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, NoSuchPhotoOnDesk, UserNotFoundException {
+    public void removePhotoFromTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, NoSuchPhotoOnDesk, UserNotFoundException, PhotoNotFoundException {
         service.removePhotoFromTable(deskId, photoId, userId);
     }
 }
