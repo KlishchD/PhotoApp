@@ -9,7 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css"
+          rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <link href="https://fonts.googleapis.com/css?family=Righteous%7CMerriweather:300,300i,400,400i,700,700i"
@@ -31,6 +32,9 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item active">
                 <a class="nav-link text-white" th:href="@{/create_desk}">Create Desk</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link text-white" th:href="@{/photo/upload}">Upload Photo</a>
             </li>
         </ul>
 
@@ -87,18 +91,21 @@
     </div>
     <div th:text="${param.error}"></div>
     <div class="row row-cols-4 justify-content-around">
-        <div class="card mt-3" th:each="desk: ${desks}">
-            <img class="card-img-top mt-2 rounded-3" src="/img/default-img.jpg">
+        <div class="card mt-3 m-2" th:each="desk: ${desks}">
+            <img class="card-img-top mt-2 rounded-3"
+                 th:if="${photos.containsKey(desk.id) && photos.get(desk.id) != null}"
+                 th:src="${photos.get(desk.id).getPath()}">
+
+            <img class="card-img-top mt-2 rounded-3"
+                 th:if="${!(photos.containsKey(desk.id) && photos.get(desk.id) != null)}"
+                 src="https://storage.googleapis.com/photo_app_bucket_1/no_img.jpg">
+
 
             <h2 class="card-header bg-white" th:text="${desk.name}"></h2>
 
             <ul class="list-group list-group-flush">
-                <li class="list-group-item"> Photo id:
-                    <td th:if="${photos.containsKey(desk.id) && photos.get(desk.id) != null}" th:text="${photos.get(desk.id)}"></td>
-                    <td th:if="${!photos.containsKey(desk.id) || photos.get(desk.id) == null}"> No photos </td>
-                </li>
-                <li class="list-group-item"> Id:
-                    <td th:text="${desk.id}"></td>
+                <li class="list-group-item" th:if="${!photos.containsKey(desk.id) || photos.get(desk.id) == null}">
+                    No photos
                 </li>
                 <li class="list-group-item"> Desk name:
                     <td th:text="${desk.name}"></td>
@@ -129,7 +136,7 @@
                 </form>
                 <form th:action="@{/view_photos}" method="get">
                     <input th:value="${desk.id}" name="deskId" hidden>
-                    <input th:value="1" name="page" hidden>
+                    <input th:value="0" name="page" hidden>
                     <button type="submit" class="btn btn-outline-primary rounded-0" data-mdb-ripple-color="dark">
                         Photos
                     </button>
