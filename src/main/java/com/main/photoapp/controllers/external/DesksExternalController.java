@@ -1,14 +1,12 @@
 package com.main.photoapp.controllers.external;
 
-import com.main.photoapp.exceptions.DeskNotFoundException;
-import com.main.photoapp.exceptions.IncorrectUsernameFormat;
-import com.main.photoapp.exceptions.NotEnoughPermissionsException;
-import com.main.photoapp.exceptions.UserNotFoundException;
+import com.main.photoapp.exceptions.*;
 import com.main.photoapp.models.Desk.Desk;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import com.main.photoapp.services.Desks.DesksService;
 import com.main.photoapp.services.UsersService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,7 +28,7 @@ public class DesksExternalController extends ExternalControllerBase {
 
     private final DesksService desksService;
 
-
+    @Autowired
     public DesksExternalController(DesksOwnerService desksOwnerService, DesksService desksService, UsersService usersService) {
         super(usersService);
         this.desksOwnerService = desksOwnerService;
@@ -57,7 +55,6 @@ public class DesksExternalController extends ExternalControllerBase {
         }
     }
 
-
     @GetMapping("/create_desk")
     public String createDesk(@RequestParam(required = false) String error) {
         return "desks/create_desk";
@@ -66,7 +63,7 @@ public class DesksExternalController extends ExternalControllerBase {
     @GetMapping("/update_desk")
     public String updateDesk(@RequestParam int deskId, @RequestParam(defaultValue = "") String error, Model model) throws UserNotFoundException, IncorrectUsernameFormat, IOException, DeskNotFoundException, NotEnoughPermissionsException {
         int userId = getCurrentUser().getId();
-        List<DeskOwnerMapping> owners = desksOwnerService.getOwners(deskId, getCurrentUser().getId());
+        List<DeskOwnerMapping> owners = desksOwnerService.getOwners(deskId, userId);
         Map<Integer, String> usernames = usersService.getUsernamesMap(owners.stream().map(DeskOwnerMapping::getUserId).toList());
 
         model.addAttribute("userId", getCurrentUser().getId());
@@ -74,17 +71,8 @@ public class DesksExternalController extends ExternalControllerBase {
         model.addAttribute("owners", owners);
         model.addAttribute("usernames", usernames);
 
+        addInformationForDeskModification(model, deskId, userId);
 
-        if (!desksOwnerService.getDeskOwnerPermission(deskId, userId).canModifyDeskInformation()) {
-            model.addAttribute("error", "Not enough permissions");
-        } else {
-            try {
-                Desk desk = desksService.getDeskInformation(deskId, userId);
-                model.addAttribute("desk", desk);
-            } catch (Exception e) {
-                model.addAttribute("error", e.getMessage());
-            }
-        }
         return "desks/update_desk";
     }
 
@@ -98,5 +86,24 @@ public class DesksExternalController extends ExternalControllerBase {
         }
     }
 
+    private void addInformationForDeskModification(Model model, int deskId, int userId) {
+        if (!desksOwnerService.getDeskOwnerPermission(deskId, userId).canModifyDeskInformation()) {
+            addNotEnoughPermissionsError(model);
+        } else {
+            addDeskInformation(model, deskId, userId);
+        }
+    }
 
+    private void addNotEnoughPermissionsError(Model model) {
+        model.addAttribute("error", "Not enough permissions");
+    }
+
+    private void addDeskInformation(Model model, int deskId, int userId) {
+        try {
+            Desk desk = desksService.getDeskInformation(deskId, userId);
+            model.addAttribute("desk", desk);
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+        }
+    }
 }
