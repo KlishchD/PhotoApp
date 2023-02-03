@@ -36,7 +36,6 @@ public class PhotosExternalController extends ExternalControllerBase {
 
     private final UsersService usersService;
 
-
     @Autowired
     public PhotosExternalController(DesksPhotoService desksPhotoService, DesksOwnerService desksOwnerService, TagsPhotoService tagsPhotoService, UsersService usersService, PhotoService photoService) {
         super(usersService);
