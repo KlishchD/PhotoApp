@@ -1,13 +1,17 @@
-package com.main.photoapp.services;
+package com.main.photoapp.services.Photos;
 
 import com.main.photoapp.exceptions.*;
 import com.main.photoapp.models.Photo;
 import com.main.photoapp.repositories.PhotosRepository;
-import org.checkerframework.checker.units.qual.A;
+import com.main.photoapp.services.Photos.Storages.PhotoStorage;
+import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 import static com.main.photoapp.utils.PhotoDescriptionChecker.isPhotoDescriptionCorrect;
 
@@ -18,10 +22,18 @@ public class PhotoService {
 
     private final UsersService usersService;
 
+    private final PhotoStorage photoStorage;
+
     @Autowired
-    public PhotoService(PhotosRepository photos, UsersService usersService) {
+    public PhotoService(PhotosRepository photos, UsersService usersService, PhotoStorage photoStorage) {
         this.photos = photos;
         this.usersService = usersService;
+        this.photoStorage = photoStorage;
+    }
+
+    public int createPhoto(MultipartFile photo, String description, int ownerId) throws IncorrectPhotoDescriptionFormat, UserNotFoundException, IOException {
+        String path = uploadPhoto(photo);
+        return createPhoto(description, path, ownerId);
     }
 
     public int createPhoto(String description, String paths, int ownerId) throws IncorrectPhotoDescriptionFormat, UserNotFoundException {
@@ -68,5 +80,9 @@ public class PhotoService {
 
     public boolean photoNotExists(int id) {
         return !photos.existsById(id);
+    }
+
+    public String uploadPhoto(MultipartFile photo) throws IOException {
+        return photoStorage.uploadPhoto(photo);
     }
 }

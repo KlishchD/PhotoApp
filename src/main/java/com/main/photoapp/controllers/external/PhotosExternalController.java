@@ -6,8 +6,7 @@ import com.main.photoapp.models.Photo;
 import com.main.photoapp.models.Tag.Tag;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import com.main.photoapp.services.Desks.DesksPhotoService;
-import com.main.photoapp.services.PhotoService;
-import com.main.photoapp.services.PhotoStorageService;
+import com.main.photoapp.services.Photos.PhotoService;
 import com.main.photoapp.services.Tags.TagsPhotoService;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,19 +32,17 @@ public class PhotosExternalController extends ExternalControllerBase {
 
     private final TagsPhotoService tagsPhotoService;
 
-    private final PhotoStorageService photoStorageService;
+    private final PhotoService photoService;
 
     private final UsersService usersService;
 
-    private final PhotoService photoService;
 
     @Autowired
-    public PhotosExternalController(DesksPhotoService desksPhotoService, DesksOwnerService desksOwnerService, TagsPhotoService tagsPhotoService, PhotoStorageService photoStorageService, UsersService usersService, PhotoService photoService) {
+    public PhotosExternalController(DesksPhotoService desksPhotoService, DesksOwnerService desksOwnerService, TagsPhotoService tagsPhotoService, UsersService usersService, PhotoService photoService) {
         super(usersService);
         this.desksPhotoService = desksPhotoService;
         this.desksOwnerService = desksOwnerService;
         this.tagsPhotoService = tagsPhotoService;
-        this.photoStorageService = photoStorageService;
         this.usersService = usersService;
         this.photoService = photoService;
     }
@@ -89,8 +86,7 @@ public class PhotosExternalController extends ExternalControllerBase {
     @PostMapping("perform_photo_upload")
     public void performPhotoUpload(@RequestParam String description, @RequestParam int ownerId, @RequestParam MultipartFile photo, HttpServletResponse response) throws IOException, UserNotFoundException, IncorrectPhotoDescriptionFormat {
         try {
-            String path = photoStorageService.uploadPhoto(photo);
-            int id = photoService.createPhoto(description, path, ownerId);
+            int id = photoService.createPhoto(photo, description, ownerId);
             response.sendRedirect("/photo?photoId=" + id);
         } catch (Exception e) {
             response.sendRedirect("/photo/upload?error=" + e.getMessage() + "&description=" + description);
