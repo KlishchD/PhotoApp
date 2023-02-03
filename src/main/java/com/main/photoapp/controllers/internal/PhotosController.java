@@ -5,7 +5,7 @@ import com.main.photoapp.exceptions.NotEnoughPermissionsException;
 import com.main.photoapp.exceptions.PhotoNotFoundException;
 import com.main.photoapp.exceptions.UserNotFoundException;
 import com.main.photoapp.models.Photo;
-import com.main.photoapp.services.PhotoService;
+import com.main.photoapp.services.Photos.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

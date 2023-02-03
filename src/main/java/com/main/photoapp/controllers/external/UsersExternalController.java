@@ -7,7 +7,7 @@ import com.main.photoapp.models.User;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import com.main.photoapp.services.Desks.DesksPhotoService;
 import com.main.photoapp.services.Desks.DesksService;
-import com.main.photoapp.services.PhotoService;
+import com.main.photoapp.services.Photos.PhotoService;
 import com.main.photoapp.services.UsersService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
