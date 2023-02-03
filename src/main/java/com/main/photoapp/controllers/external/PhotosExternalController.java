@@ -7,7 +7,6 @@ import com.main.photoapp.models.Tag.Tag;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import com.main.photoapp.services.Desks.DesksPhotoService;
 import com.main.photoapp.services.Photos.PhotoService;
-import com.main.photoapp.services.Photos.Storages.PhotoStorage;
 import com.main.photoapp.services.Tags.TagsPhotoService;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
