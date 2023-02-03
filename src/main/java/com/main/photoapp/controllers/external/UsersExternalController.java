@@ -9,6 +9,8 @@ import com.main.photoapp.services.Desks.DesksPhotoService;
 import com.main.photoapp.services.Desks.DesksService;
 import com.main.photoapp.services.Photos.PhotoService;
 import com.main.photoapp.services.UsersService;
+import com.main.photoapp.utils.DesksTypesMapping;
+import com.main.photoapp.utils.PermissionMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -30,21 +32,6 @@ public class UsersExternalController extends ExternalControllerBase {
     private final DesksPhotoService desksPhotoService;
 
     private final PhotoService photoService;
-
-    private static final Map<String, List<DeskOwnerMapping.Permission>> permissionMapping = new HashMap<>();
-    private static final Map<String, List<Desk.DeskType>> typesMapping = new HashMap<>();
-
-    static {
-        permissionMapping.put("CREATOR", List.of(DeskOwnerMapping.Permission.CREATOR_PERMISSION));
-        permissionMapping.put("FULL", List.of(DeskOwnerMapping.Permission.FULL_PERMISSION));
-        permissionMapping.put("VIEW", List.of(DeskOwnerMapping.Permission.VIEW_ONLY_PERMISSION));
-        permissionMapping.put("NONE", List.of(DeskOwnerMapping.Permission.NO_PERMISSIONS));
-        permissionMapping.put("ALL", List.of(DeskOwnerMapping.Permission.values()));
-
-        typesMapping.put("PUBLIC", List.of(Desk.DeskType.PUBLIC));
-        typesMapping.put("PRIVATE", List.of(Desk.DeskType.PRIVATE));
-        typesMapping.put("ALL", List.of(Desk.DeskType.values()));
-    }
 
     public UsersExternalController(DesksOwnerService desksOwnerService, DesksService desksService, DesksPhotoService desksPhotoService, UsersService usersService, PhotoService photoService) {
         super(usersService);
@@ -76,12 +63,14 @@ public class UsersExternalController extends ExternalControllerBase {
         return "users/login";
     }
 
-
     @GetMapping("/profile")
     public String getDesks(@RequestParam(defaultValue = "") String error, @RequestParam(defaultValue = "ALL") String permission, @RequestParam(defaultValue = "ALL") String type, Model model) throws Exception {
         User user = getCurrentUser();
 
-        List<Desk> desks = desksService.getAllDesksForUser(user.getId(), permissionMapping.get(permission), typesMapping.get(type));
+        List<Desk> desks = desksService.getAllDesksForUser(user.getId(),
+                PermissionMapping.getPermissionMapping().get(permission),
+                DesksTypesMapping.getTypesMapping().get(type));
+
         Map<Integer, List<String>> owners = desksOwnerService.getOwnersNames(desks);
 
         model.addAttribute("photos", desksPhotoService.getFirstPhotoForDesks(desks));
@@ -92,6 +81,7 @@ public class UsersExternalController extends ExternalControllerBase {
         model.addAttribute("email", user.getEmail());
         model.addAttribute("permission", permission);
         model.addAttribute("type", type);
+
         return "users/profile";
     }
 
