@@ -6,12 +6,11 @@ import com.main.photoapp.models.Desk.PhotoMapping.DeskPhotoMapping;
 import com.main.photoapp.models.Desk.PhotoMapping.DeskPhotoMappingId;
 import com.main.photoapp.models.Photo;
 import com.main.photoapp.repositories.DesksPhotoMappingRepository;
-import com.main.photoapp.services.PhotoService;
+import com.main.photoapp.services.Photos.PhotoService;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
