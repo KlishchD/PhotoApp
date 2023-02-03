@@ -9,7 +9,6 @@ import com.main.photoapp.services.Desks.DesksPhotoService;
 import com.main.photoapp.services.Desks.DesksService;
 import com.main.photoapp.services.PhotoService;
 import com.main.photoapp.services.UsersService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,20 +23,13 @@ import java.util.Map;
 @Controller
 public class UsersExternalController extends ExternalControllerBase {
 
-    @Autowired
-    private DesksOwnerService desksOwnerService;
+    private final DesksOwnerService desksOwnerService;
 
-    @Autowired
-    private DesksService desksService;
+    private final DesksService desksService;
 
-    @Autowired
-    private DesksPhotoService desksPhotoService;
+    private final DesksPhotoService desksPhotoService;
 
-    @Autowired
-    private UsersService usersService;
-
-    @Autowired
-    private PhotoService photoService;
+    private final PhotoService photoService;
 
     private static final Map<String, List<DeskOwnerMapping.Permission>> permissionMapping = new HashMap<>();
     private static final Map<String, List<Desk.DeskType>> typesMapping = new HashMap<>();
@@ -52,6 +44,14 @@ public class UsersExternalController extends ExternalControllerBase {
         typesMapping.put("PUBLIC", List.of(Desk.DeskType.PUBLIC));
         typesMapping.put("PRIVATE", List.of(Desk.DeskType.PRIVATE));
         typesMapping.put("ALL", List.of(Desk.DeskType.values()));
+    }
+
+    public UsersExternalController(DesksOwnerService desksOwnerService, DesksService desksService, DesksPhotoService desksPhotoService, UsersService usersService, PhotoService photoService) {
+        super(usersService);
+        this.desksOwnerService = desksOwnerService;
+        this.desksService = desksService;
+        this.desksPhotoService = desksPhotoService;
+        this.photoService = photoService;
     }
 
 

@@ -3,14 +3,16 @@ package com.main.photoapp.controllers.internal.Desks;
 import com.main.photoapp.exceptions.*;
 import com.main.photoapp.services.Desks.DesksPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class DesksPhotoController {
-    @Autowired
     private DesksPhotoService service;
+
+    @Autowired
+    public DesksPhotoController(DesksPhotoService service) {
+        this.service = service;
+    }
 
     @PostMapping("/desk/add/photo")
     public void addPhotoToTable(@RequestParam int deskId, @RequestParam int photoId, @RequestParam int userId) throws NotEnoughPermissionsException, DeskNotFoundException, UserNotFoundException, PhotoNotFoundException {

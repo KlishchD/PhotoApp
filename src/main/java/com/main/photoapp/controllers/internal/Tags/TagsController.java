@@ -13,8 +13,12 @@ import java.util.List;
 @RestController
 public class TagsController {
 
+    private final TagsService service;
+
     @Autowired
-    private TagsService service;
+    public TagsController(TagsService service) {
+        this.service = service;
+    }
 
     @GetMapping("tag/get")
     public Tag getTagByID(@RequestParam int id) throws TagNotFoundException {

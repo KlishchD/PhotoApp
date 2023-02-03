@@ -10,7 +10,6 @@ import com.main.photoapp.services.PhotoService;
 import com.main.photoapp.services.PhotoStorageService;
 import com.main.photoapp.services.Tags.TagsPhotoService;
 import com.main.photoapp.services.UsersService;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -23,30 +22,33 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.http.HttpResponse;
-import java.util.Arrays;
 import java.util.List;
 
 @ControllerAdvice
 @Controller
 public class PhotosExternalController extends ExternalControllerBase {
-    @Autowired
-    private DesksPhotoService desksPhotoService;
+    private final DesksPhotoService desksPhotoService;
+
+    private final DesksOwnerService desksOwnerService;
+
+    private final TagsPhotoService tagsPhotoService;
+
+    private final PhotoStorageService photoStorageService;
+
+    private final UsersService usersService;
+
+    private final PhotoService photoService;
 
     @Autowired
-    private DesksOwnerService desksOwnerService;
-
-    @Autowired
-    private TagsPhotoService tagsPhotoService;
-
-    @Autowired
-    private PhotoStorageService photoStorageService;
-
-    @Autowired
-    private UsersService usersService;
-
-    @Autowired
-    private PhotoService photoService;
+    public PhotosExternalController(DesksPhotoService desksPhotoService, DesksOwnerService desksOwnerService, TagsPhotoService tagsPhotoService, PhotoStorageService photoStorageService, UsersService usersService, PhotoService photoService) {
+        super(usersService);
+        this.desksPhotoService = desksPhotoService;
+        this.desksOwnerService = desksOwnerService;
+        this.tagsPhotoService = tagsPhotoService;
+        this.photoStorageService = photoStorageService;
+        this.usersService = usersService;
+        this.photoService = photoService;
+    }
 
     @GetMapping("/view_photos")
     public String viewPhotos(@RequestParam int deskId, @RequestParam int page, @RequestParam(defaultValue = "2") int pageSize, Model model) throws DeskNotFoundException, UserNotFoundException, NotEnoughPermissionsException {

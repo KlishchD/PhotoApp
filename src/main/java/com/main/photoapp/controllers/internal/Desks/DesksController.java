@@ -4,13 +4,16 @@ import com.main.photoapp.exceptions.*;
 import com.main.photoapp.models.Desk.Desk;
 import com.main.photoapp.services.Desks.DesksService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class DesksController {
+    private final DesksService service;
+
     @Autowired
-    private DesksService service;
+    public DesksController(DesksService service) {
+        this.service = service;
+    }
 
     @PostMapping("/desk/add")
     public int addDesk(@RequestParam String name, @RequestParam String description, @RequestParam("creator_id") int creatorId, @RequestParam Desk.DeskType type) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {

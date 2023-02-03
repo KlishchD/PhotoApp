@@ -22,14 +22,18 @@ import java.util.stream.Collectors;
 @Component
 public class TagsPhotoService {
 
-    @Autowired
-    private TagsService tags;
+    private final TagsService tags;
+
+    private final UsersService users;
+
+    private final TagsPhotoRepository mapping;
 
     @Autowired
-    private UsersService users;
-
-    @Autowired
-    private TagsPhotoRepository mapping;
+    public TagsPhotoService(TagsService tags, UsersService users, TagsPhotoRepository mapping) {
+        this.tags = tags;
+        this.users = users;
+        this.mapping = mapping;
+    }
 
     public Page<Integer> findPhotoIds(List<Integer> tagsIds, int page, int pageSize) {
         System.out.println("------------------------------------------------------------------");

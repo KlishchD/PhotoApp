@@ -7,6 +7,7 @@ import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMappingId;
 import com.main.photoapp.repositories.DesksOwnerRepository;
 import com.main.photoapp.services.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,14 +16,23 @@ import java.util.stream.Collectors;
 
 @Component
 public class DesksOwnerService {
-    @Autowired
-    private DesksOwnerRepository owners;
+    private final DesksOwnerRepository owners;
 
-    @Autowired
-    private UsersService usersService;
+    private final UsersService usersService;
 
-    @Autowired
     private DesksService desksService;
+
+    @Autowired
+    public DesksOwnerService(DesksOwnerRepository owners, UsersService usersService) {
+        this.owners = owners;
+        this.usersService = usersService;
+    }
+
+    public DesksOwnerService(DesksOwnerRepository owners, UsersService usersService, DesksService desksService) {
+        this.owners = owners;
+        this.usersService = usersService;
+        this.desksService = desksService;
+    }
 
     @Transactional
     public void addOwnerToDesk(int deskId, int userId, DeskOwnerMapping.Permission permission, int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, DeskNotFoundException, UserNotFoundException, CanNotAddAnotherCreator {
@@ -171,4 +181,8 @@ public class DesksOwnerService {
             throw new NotEnoughPermissionsException(removerId);
     }
 
+    @Autowired
+    public void setDesksService(DesksService desksService) {
+        this.desksService = desksService;
+    }
 }

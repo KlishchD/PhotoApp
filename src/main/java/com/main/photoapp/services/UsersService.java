@@ -20,14 +20,18 @@ import static com.main.photoapp.utils.PasswordChecker.isPasswordCorrect;
 
 @Component
 public class UsersService {
-    @Autowired
-    private UsersRepository users;
+    private final UsersRepository users;
+
+    private final UserDetailsManager manager;
+
+    private final PasswordEncoder encoder;
 
     @Autowired
-    private UserDetailsManager manager;
-
-    @Autowired
-    private PasswordEncoder encoder;
+    public UsersService(UsersRepository users, UserDetailsManager manager, PasswordEncoder encoder) {
+        this.users = users;
+        this.manager = manager;
+        this.encoder = encoder;
+    }
 
     private UserDetails getSecurityUserDetails(User user) {
         return org.springframework.security.core.userdetails.User

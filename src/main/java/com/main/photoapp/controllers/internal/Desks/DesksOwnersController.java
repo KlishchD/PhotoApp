@@ -5,15 +5,18 @@ import com.main.photoapp.models.Desk.Desk;
 import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 public class DesksOwnersController {
-    @Autowired
     private DesksOwnerService service;
+
+    @Autowired
+    public DesksOwnersController(DesksOwnerService service) {
+        this.service = service;
+    }
 
     @PostMapping("/desk/add/owner")
     public void addOwnerToDesk(@RequestParam int deskId, @RequestParam int userId, @RequestParam DeskOwnerMapping.Permission permission, @RequestParam int adderId) throws NotEnoughPermissionsException, UserIsAlreadyDeskOwnerException, DeskNotFoundException, UserNotFoundException, CanNotAddAnotherCreator {
