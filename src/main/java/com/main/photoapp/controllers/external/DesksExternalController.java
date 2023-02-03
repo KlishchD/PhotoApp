@@ -9,7 +9,6 @@ import com.main.photoapp.models.Desk.OwnersMapping.DeskOwnerMapping;
 import com.main.photoapp.services.Desks.DesksOwnerService;
 import com.main.photoapp.services.Desks.DesksService;
 import com.main.photoapp.services.UsersService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,14 +26,16 @@ import java.util.Map;
 @Controller
 public class DesksExternalController extends ExternalControllerBase {
 
-    @Autowired
-    private DesksOwnerService desksOwnerService;
+    private final DesksOwnerService desksOwnerService;
 
-    @Autowired
-    private DesksService desksService;
+    private final DesksService desksService;
 
-    @Autowired
-    private UsersService usersService;
+
+    public DesksExternalController(DesksOwnerService desksOwnerService, DesksService desksService, UsersService usersService) {
+        super(usersService);
+        this.desksOwnerService = desksOwnerService;
+        this.desksService = desksService;
+    }
 
     @PostMapping("/perform_desk_creation")
     public void createDesk(@RequestParam String name, @RequestParam String description, @RequestParam Desk.DeskType type, HttpServletResponse response) throws IOException {

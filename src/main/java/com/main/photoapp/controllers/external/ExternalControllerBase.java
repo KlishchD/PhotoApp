@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-@Component
 public class ExternalControllerBase {
-    @Autowired
-    private UsersService usersService;
+    protected final UsersService usersService;
+
+        public ExternalControllerBase(UsersService usersService) {
+        this.usersService = usersService;
+    }
 
     @SneakyThrows
     public User getCurrentUser() {

@@ -8,16 +8,18 @@ import com.main.photoapp.models.SearchRequest;
 import com.main.photoapp.models.Tag.Tag;
 import com.main.photoapp.services.Tags.TagsPhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class TagsPhotoController {
+    private final TagsPhotoService service;
+
     @Autowired
-    private TagsPhotoService service;
+    public TagsPhotoController(TagsPhotoService service) {
+        this.service = service;
+    }
 
     @PostMapping("photo/add/tag")
     public void addTagToPhoto(int tagId, int photoId, int userId) throws TagNotFoundException, UserNotFoundException, TagIsAlreadyAdded {

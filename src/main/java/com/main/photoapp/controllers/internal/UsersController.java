@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class UsersController {
+    private final UsersService service;
+
     @Autowired
-    private UsersService service;
+    public UsersController(UsersService service) {
+        this.service = service;
+    }
 
     @PostMapping("/user/create")
     @ResponseBody

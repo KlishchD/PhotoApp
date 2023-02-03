@@ -1,9 +1,7 @@
 package com.main.photoapp.services;
 
 import com.main.photoapp.exceptions.*;
-import com.main.photoapp.models.Desk.PhotoMapping.DeskPhotoMapping;
 import com.main.photoapp.models.Photo;
-import com.main.photoapp.models.User;
 import com.main.photoapp.repositories.PhotosRepository;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +14,15 @@ import static com.main.photoapp.utils.PhotoDescriptionChecker.isPhotoDescription
 
 @Component
 public class PhotoService {
-    @Autowired
-    private PhotosRepository photos;
+    private final PhotosRepository photos;
+
+    private final UsersService usersService;
 
     @Autowired
-    private UsersService usersService;
+    public PhotoService(PhotosRepository photos, UsersService usersService) {
+        this.photos = photos;
+        this.usersService = usersService;
+    }
 
     public int createPhoto(String description, String paths, int ownerId) throws IncorrectPhotoDescriptionFormat, UserNotFoundException {
         if (!isPhotoDescriptionCorrect(description)) throw new IncorrectPhotoDescriptionFormat(description);

@@ -21,17 +21,24 @@ import java.util.Map;
 
 @Component
 public class DesksPhotoService {
-    @Autowired
-    private UsersService usersService;
-    @Autowired
-    private DesksOwnerService desksOwnerService;
-    @Autowired
-    private DesksService desksService;
-    @Autowired
-    private DesksPhotoMappingRepository photosRepository;
+    private final UsersService usersService;
+
+    private final DesksOwnerService desksOwnerService;
+
+    private final DesksService desksService;
+
+    private final DesksPhotoMappingRepository photosRepository;
+
+    private final PhotoService photoService;
 
     @Autowired
-    private PhotoService photoService;
+    public DesksPhotoService(UsersService usersService, DesksOwnerService desksOwnerService, DesksService desksService, DesksPhotoMappingRepository photosRepository, PhotoService photoService) {
+        this.usersService = usersService;
+        this.desksOwnerService = desksOwnerService;
+        this.desksService = desksService;
+        this.photosRepository = photosRepository;
+        this.photoService = photoService;
+    }
 
     public boolean isPhotoPartOfDesk(int deskId, int photoId) {
         return photosRepository.existsById(new DeskPhotoMappingId(deskId, photoId));

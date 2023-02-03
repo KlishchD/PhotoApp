@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class PhotosController {
+    private final PhotoService service;
+
     @Autowired
-    private PhotoService service;
+    public PhotosController(PhotoService service) {
+        this.service = service;
+    }
 
     @PostMapping("/photo/create")
     @ResponseBody

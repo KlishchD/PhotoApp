@@ -4,16 +4,20 @@ import com.main.photoapp.exceptions.TagAlreadyExistsException;
 import com.main.photoapp.exceptions.TagNotFoundException;
 import com.main.photoapp.models.Tag.Tag;
 import com.main.photoapp.repositories.TagsRepository;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class TagsService {
+    private final TagsRepository repository;
+
     @Autowired
-    private TagsRepository repository;
+    public TagsService(TagsRepository repository) {
+        this.repository = repository;
+    }
 
     public Tag getTagById(int id) {
         return  repository.findById(id).orElse(null);

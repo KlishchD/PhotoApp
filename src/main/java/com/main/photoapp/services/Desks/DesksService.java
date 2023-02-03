@@ -19,14 +19,23 @@ import static com.main.photoapp.utils.DeskNameChecker.isDeskNameCorrect;
 
 @Component
 public class DesksService {
-    @Autowired
-    private DesksRepository desks;
+    private final DesksRepository desks;
 
-    @Autowired
     private DesksOwnerService desksOwnerService;
 
+    private final UsersService usersService;
+
     @Autowired
-    private UsersService usersService;
+    public DesksService(DesksRepository desks, UsersService usersService) {
+        this.desks = desks;
+        this.usersService = usersService;
+    }
+
+    public DesksService(DesksRepository desks, DesksOwnerService desksOwnerService, UsersService usersService) {
+        this.desks = desks;
+        this.desksOwnerService = desksOwnerService;
+        this.usersService = usersService;
+    }
 
     @Transactional
     public int addDesk(String name, String description, int creatorId, Desk.DeskType type) throws UserNotFoundException, IncorrectDeskNameFormat, IncorrectDeskDescriptionFormat {
@@ -155,4 +164,8 @@ public class DesksService {
         return desks.findById(deskId).get();
     }
 
+    @Autowired
+    public void setDesksOwnerService(DesksOwnerService desksOwnerService) {
+        this.desksOwnerService = desksOwnerService;
+    }
 }
